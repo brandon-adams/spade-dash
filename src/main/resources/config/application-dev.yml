@@ -1,0 +1,65 @@
+server:
+    port: 8080
+
+spring:
+    profiles:
+        active: dev
+    data:
+        mongodb:
+            host: localhost
+            port: 27017
+            database: demo
+    
+
+    mail:
+        baseUrl: http://localhost:8080
+
+    thymeleaf:
+        mode: XHTML
+        cache: false
+
+metrics:
+    jmx.enabled: true
+    spark:
+        enabled: false
+        host: localhost
+        port: 9999
+    graphite:
+        enabled: false
+        host: localhost
+        port: 2003
+        prefix: spade
+
+kubernetes:
+    host: 192.168.4.45
+    port: 8888
+    endpoint: /api/v1beta1
+
+docker:
+    host: localhost
+    port: 2375
+    user: bradams
+    password: Qu!ckF0x
+    email: brandon.adams@newwave-technologies.com
+    server: http://index.docker.io/v1/
+    images:
+        ubuntu:
+            web:
+                apache: sewatech/modcluster
+                nginx: bradams/devops:nginx-ubuntu
+            app:
+                wildfly: bradams/devops:wildfly-ubuntu
+                tomcat: bradams/devops:tomcat-ubuntu
+            db:
+                mongodb: partlab/ubuntu-mongodb
+                mysql: bradams/devops:mysql-ubuntu
+        fedora:
+            web:
+                apache: bradams/devops:apache-fedora
+                nginx: bradams/devops:nginx-fedora
+            app:
+                wildfly: bradams/devops:cluster
+                tomcat: bradams/devops:tomcat-fedora
+            db:
+                mongodb: bradams/devops:mongodb-fedora
+                mysql: jdeathe/centos-ssh-mysql

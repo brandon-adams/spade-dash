@@ -2,7 +2,7 @@ package com.nwt.spade.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.nwt.spade.domain.SpringUser;
-import com.nwt.spade.repository.UserRepository;
+import com.nwt.spade.repository.SpringUserRepository;
 import com.nwt.spade.security.AuthoritiesConstants;
 
 import org.slf4j.Logger;
@@ -26,8 +26,8 @@ public class UserResource {
 
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
 
-    @Inject
-    private UserRepository userRepository;
+  //  @Inject
+    private SpringUserRepository userRepository;
 
     /**
      * GET  /users/:login -> get the "login" user.

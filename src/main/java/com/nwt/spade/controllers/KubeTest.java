@@ -67,10 +67,10 @@ public class KubeTest {
 		}
 	}
 
-	public static void main(String[] args) {
-		KubeTest test = new KubeTest();
-		test.createPodTest();
-
-	}
+//	public static void main(String[] args) {
+//		KubeTest test = new KubeTest();
+//		test.createPodTest();
+//
+//	}
 
 }

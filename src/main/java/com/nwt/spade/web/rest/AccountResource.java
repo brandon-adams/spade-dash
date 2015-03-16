@@ -5,7 +5,7 @@ import com.nwt.spade.domain.Authority;
 import com.nwt.spade.domain.PersistentToken;
 import com.nwt.spade.domain.SpringUser;
 import com.nwt.spade.repository.PersistentTokenRepository;
-import com.nwt.spade.repository.UserRepository;
+import com.nwt.spade.repository.SpringUserRepository;
 import com.nwt.spade.security.SecurityUtils;
 import com.nwt.spade.service.MailService;
 import com.nwt.spade.service.SpringUserService;
@@ -36,13 +36,13 @@ public class AccountResource {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
-    @Inject
-    private UserRepository userRepository;
+   // @Inject
+    private SpringUserRepository userRepository;
 
-    @Inject
+   // @Inject
     private SpringUserService userService;
 
-    @Inject
+  //  @Inject
     private PersistentTokenRepository persistentTokenRepository;
 
     @Inject

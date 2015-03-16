@@ -1,0 +1,19 @@
+{
+  "generator-jhipster": {
+    "baseName": "spade",
+    "packageName": "com.newwave.spade",
+    "packageFolder": "com/newwave/spade",
+    "authenticationType": "session",
+    "hibernateCache": "no",
+    "clusteredHttpSession": "no",
+    "websocket": "no",
+    "databaseType": "mongodb",
+    "devDatabaseType": "mongodb",
+    "prodDatabaseType": "mongodb",
+    "useCompass": true,
+    "buildTool": "maven",
+    "frontendBuilder": "grunt",
+    "javaVersion": "7",
+    "rememberMeKey": "f56ebdf65e08d5dfe63b845070ba5cfd5b5b63fc"
+  }
+}

@@ -161,11 +161,11 @@ public class MesosController {
 		return objBuild.build();
 	}
 	
-	public static void main(String[] args){
-		MesosController mesos = new MesosController();
-		System.out.println(mesos.updateMesosStats().toString());
-		//System.out.println(mesos.mesosApiRequest("/stats.json"));
-	}
+//	public static void main(String[] args){
+//		MesosController mesos = new MesosController();
+//		System.out.println(mesos.updateMesosStats().toString());
+//		//System.out.println(mesos.mesosApiRequest("/stats.json"));
+//	}
 	
 	public static class UpdateTasks extends TimerTask {
 

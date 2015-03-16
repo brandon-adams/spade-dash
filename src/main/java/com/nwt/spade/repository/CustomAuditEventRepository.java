@@ -22,7 +22,7 @@ import java.util.List;
 @Repository
 public class CustomAuditEventRepository {
 
-    @Inject
+   // @Inject
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
 
     @Bean

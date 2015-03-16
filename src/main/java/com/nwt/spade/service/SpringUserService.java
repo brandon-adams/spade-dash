@@ -5,7 +5,7 @@ import com.nwt.spade.domain.PersistentToken;
 import com.nwt.spade.domain.SpringUser;
 import com.nwt.spade.repository.AuthorityRepository;
 import com.nwt.spade.repository.PersistentTokenRepository;
-import com.nwt.spade.repository.UserRepository;
+import com.nwt.spade.repository.SpringUserRepository;
 import com.nwt.spade.security.SecurityUtils;
 import com.nwt.spade.service.util.RandomUtil;
 
@@ -34,13 +34,13 @@ public class SpringUserService {
     @Inject
     private PasswordEncoder passwordEncoder;
 
-    @Inject
-    private UserRepository userRepository;
+   // @Inject
+    private SpringUserRepository userRepository;
 
-    @Inject
+   // @Inject
     private PersistentTokenRepository persistentTokenRepository;
 
-    @Inject
+  //  @Inject
     private AuthorityRepository authorityRepository;
 
     public  SpringUser activateRegistration(String key) {

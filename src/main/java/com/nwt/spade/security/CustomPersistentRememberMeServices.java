@@ -3,7 +3,7 @@ package com.nwt.spade.security;
 import com.nwt.spade.domain.PersistentToken;
 import com.nwt.spade.domain.SpringUser;
 import com.nwt.spade.repository.PersistentTokenRepository;
-import com.nwt.spade.repository.UserRepository;
+import com.nwt.spade.repository.SpringUserRepository;
 
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -68,11 +68,11 @@ public class CustomPersistentRememberMeServices extends
 
     private SecureRandom random;
 
-    @Inject
+   // @Inject
     private PersistentTokenRepository persistentTokenRepository;
 
-    @Inject
-    private UserRepository userRepository;
+   // @Inject
+    private SpringUserRepository userRepository;
 
     @Inject
     public CustomPersistentRememberMeServices(Environment env, org.springframework.security.core.userdetails.UserDetailsService userDetailsService) {

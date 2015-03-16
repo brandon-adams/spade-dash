@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 public class AuditEventService {
 
-    @Inject
+  //  @Inject
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
 
     @Inject

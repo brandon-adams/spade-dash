@@ -2,7 +2,7 @@ package com.nwt.spade.security;
 
 import com.nwt.spade.domain.Authority;
 import com.nwt.spade.domain.SpringUser;
-import com.nwt.spade.repository.UserRepository;
+import com.nwt.spade.repository.SpringUserRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +26,8 @@ public class UserDetailsService implements org.springframework.security.core.use
 
     private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
 
-    @Inject
-    private UserRepository userRepository;
+    //@Inject
+    private SpringUserRepository userRepository;
 
     @Override
     @Transactional

@@ -104,9 +104,9 @@ public class ProjectController {
 		}
 	}
 	
-	public static void main(String[] args){
-		ProjectController test = new ProjectController(new MongoDBController(true));
-		test.updateProjects();
-	}
+//	public static void main(String[] args){
+//		ProjectController test = new ProjectController(new MongoDBController(true));
+//		test.updateProjects();
+//	}
 	
 }

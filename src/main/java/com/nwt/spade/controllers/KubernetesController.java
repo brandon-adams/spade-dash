@@ -749,15 +749,15 @@ public class KubernetesController {
 		}
 	}
 
-	public static void main(String[] args) {
-		KubernetesController test = new KubernetesController();
-		System.out.println(test.createMongoDBJSON("mongo-controller", "demo",
-				"partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1));
-		System.out.println(test.createJbossJSON("jboss-controller", "demo",
-				"bradams/devops:cluster", "fedora", "wildfly", 1));
-		System.out.println(test.createApacheJSON("apache-controller", "demo",
-				"sewatech/modcluster", "ubuntu", "apache", 1));
-	}
+//	public static void main(String[] args) {
+//		KubernetesController test = new KubernetesController();
+//		System.out.println(test.createMongoDBJSON("mongo-controller", "demo",
+//				"partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1));
+//		System.out.println(test.createJbossJSON("jboss-controller", "demo",
+//				"bradams/devops:cluster", "fedora", "wildfly", 1));
+//		System.out.println(test.createApacheJSON("apache-controller", "demo",
+//				"sewatech/modcluster", "ubuntu", "apache", 1));
+//	}
 
 	public static class UpdateStatus extends TimerTask {
 
