@@ -31,9 +31,9 @@ metrics:
         prefix: spade
 
 kubernetes:
-    host: 192.168.4.45
+    host: 192.168.4.52
     port: 8888
-    endpoint: /api/v1beta1
+    endpoint: /api/v1beta2
 
 docker:
     host: localhost

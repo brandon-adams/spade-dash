@@ -59,6 +59,12 @@ public class SPADEService {
 		return new ResponseEntity<String>(apiController.listAllEnvs("all"),
 				HttpStatus.FOUND);
 	}
+	
+	@RequestMapping(value = "/api/pods", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> listAllPods() {
+		return new ResponseEntity<String>(apiController.listAllPods("all"),
+				HttpStatus.FOUND);
+	}
 
 	@RequestMapping(value = "/api/proj", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllProjects() {

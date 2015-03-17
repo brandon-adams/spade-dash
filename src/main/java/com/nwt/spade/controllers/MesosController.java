@@ -80,7 +80,7 @@ public class MesosController {
 	
 	public JsonObject updateMesosStats(){
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
-		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonArrayBuilder slaveArrBuild = Json.createArrayBuilder();
 		JsonArrayBuilder taskArrBuild = Json.createArrayBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
@@ -89,7 +89,7 @@ public class MesosController {
 		String tasksPayload = mesosApiRequest(slavePort, slaveEndpoint+"/state.json");
 		String statsPayload = mesosApiRequest(slavePort, "/metrics/snapshot");
 		String slavesPayload = mesosApiRequest(masterPort, masterEndpoint+"/registry");
-		String kubePayload = mesosApiRequest(masterPort, masterEndpoint+"/registry");
+		
 		JsonObject tasksJson = Json.createReader(new StringReader(tasksPayload)).readObject();
 		JsonObject statsJson = Json.createReader(new StringReader(statsPayload)).readObject();
 		JsonObject slavesJson = Json.createReader(new StringReader(slavesPayload)).readObject();
@@ -99,17 +99,19 @@ public class MesosController {
 			String id = info.getJsonObject("id").getString("value");
 			String hostname = info.getString("hostname");
 			JsonArray resources = info.getJsonArray("resources");
+			JsonArrayBuilder recArrBuild = Json.createArrayBuilder();
 			for (JsonValue rec : resources){
-				arrBuild.add(rec);
+				recArrBuild.add(rec);
 			}
 			objBuild.add("id", id);
 			objBuild.add("hostname", hostname);
-			objBuild.add("resources", arrBuild.build());
-			JsonObject slavesObj = objBuild.build();
-			LOG.info("Updating Mesos slave: " + db.updateSlave(slavesObj.toString()));
+			objBuild.add("resources", recArrBuild.build());
+			JsonObject slaveObj = objBuild.build();
+			slaveArrBuild.add(slaveObj);
+			LOG.info("Synched slave -> slave with Mesos: " + db.updateSlave(slaveObj.toString()));
 		}
 		
-		
+		JsonArray slaves = slaveArrBuild.build();
 		
 		for (JsonValue jval : tasksJson.getJsonArray("frameworks").getJsonObject(0)
 				.getJsonArray("executors").getJsonObject(0).getJsonArray("tasks")){
@@ -133,10 +135,47 @@ public class MesosController {
 			taskBuild.add("diskPercent", disk*100);
 			taskBuild.add("memPercent", mem*100);
 			JsonObject taskJson = taskBuild.build();
-			LOG.debug("Synched task -> task with Mesos: " + db.updateTask(taskJson.toString()));
+			LOG.info("Synched task -> task with Mesos: " + db.updateTask(taskJson.toString()));
 			taskArrBuild.add(taskJson);
 		}
-		objBuild.add("items", taskArrBuild.build());
+		
+		JsonArray tasks = taskArrBuild.build();
+		
+		JsonArray dbSlaves = db.getAllSlaves();
+		if (!dbSlaves.isEmpty()) {
+			for (JsonValue jval : dbSlaves) {
+				boolean remove = false;
+				for (JsonValue slaveval : slaves) {
+					if (((JsonObject) slaveval).getString("id").equals(
+							((JsonObject) jval).getString("id"))) {
+						remove = true;
+					}
+				}
+				if (!remove) {
+					LOG.info("Deleting leftover slave: "
+							+ db.deleteSlave(((JsonObject)jval).getString("id")));
+				}
+			}
+
+		}
+
+		JsonArray dbTasks = db.getAllTasks();
+		if (!dbTasks.isEmpty()) {
+			for (JsonValue jval : dbTasks) {
+				boolean remove = false;
+				for (JsonValue taskval : tasks) {
+					if (((JsonObject) taskval).getString("id").equals(
+							((JsonObject) jval).getString("id"))) {
+						remove = true;
+					}
+				}
+				if (!remove) {
+					LOG.info("Deleting leftover task: "
+							+ db.deleteTask(((JsonObject)jval).getString("id")));
+				}
+			}
+		}
+		objBuild.add("items", tasks);
 		
 		return objBuild.build();
 	}
@@ -171,11 +210,11 @@ public class MesosController {
 		return jsonString.toString();
 	}
 	
-	public static void main(String[] args){
-		MesosController mesos = new MesosController();
-		System.out.println(mesos.mesosApiRequest("10251", "/debug/registry/tasks"));
-		//System.out.println(mesos.mesosApiRequest("/stats.json"));
-	}
+//	public static void main(String[] args){
+//		MesosController mesos = new MesosController();
+//		System.out.println(mesos.taskRequest("10251", "/debug/registry/tasks"));
+//		//System.out.println(mesos.mesosApiRequest("/stats.json"));
+//	}
 	
 	public static class UpdateTasks extends TimerTask {
 

@@ -1,8 +1,11 @@
 package com.nwt.spade.controllers;
 
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -15,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nwt.spade.controllers.KubernetesController.UpdateStatus;
+import com.nwt.spade.exceptions.KubernetesOperationException;
+
 @Service
 public class ProjectController {
 	
@@ -26,6 +32,15 @@ public class ProjectController {
 	@Autowired
 	public ProjectController(MongoDBController db){
 		this.db = db;
+	}
+	
+	@PostConstruct
+	public void init() {
+		TimerTask updateTask = new UpdateStatus(this);
+		Timer timer = new Timer(true);
+		LOG.info("Setting TimerTask in ProjectController");
+		// scheduling the task at fixed rate delay
+		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
 	}
 	
 	public JsonArray addProject(String payload){
@@ -108,5 +123,25 @@ public class ProjectController {
 //		ProjectController test = new ProjectController(new MongoDBController(true));
 //		test.updateProjects();
 //	}
+	
+	public static class UpdateStatus extends TimerTask {
+
+		private ProjectController projCont;
+
+		public UpdateStatus(ProjectController projectController) {
+			super();
+			projCont = projectController;
+		}
+
+		@Override
+		public void run() {
+			try {
+				projCont.updateProjects();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 }

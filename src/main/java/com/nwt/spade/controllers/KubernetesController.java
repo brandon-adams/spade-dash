@@ -147,6 +147,8 @@ public class KubernetesController {
 		String jsonString = kubeApiRequest("POST", endpoint
 				+ "/replicationControllers/", payload);
 
+		LOG.debug("Payload: " + payload);
+		LOG.debug("Return from Kube: " + jsonString);
 		return db.addEnv(project, jsonString);
 	}
 
@@ -205,9 +207,8 @@ public class KubernetesController {
 				.readObject().getJsonArray("items");
 		if (!podList.isEmpty()) {
 			for (JsonValue jval : podList) {
-				// String proj = ((JsonObject)
-				// jval).getJsonObject("labels").getString("project");
-				JsonArray val = db.updatePod(project, jval.toString());
+				String podString = jval.toString().replaceAll("k8s.mesosphere.io", "k8s_mesosphere_io");
+				JsonArray val = db.updatePod(project, podString);
 				objBuild.add("items", val);
 				LOG.info("Synched pod -> pod with KubeApi: " + val);
 			}
@@ -308,6 +309,11 @@ public class KubernetesController {
 	public JsonArray getAllEnvs(String project) {
 
 		return db.getAllEnvs(project);
+	}
+	
+	public JsonArray getAllPods(String project) {
+
+		return db.getAllPods(project);
 	}
 
 	private String createMongoDBJSON(String name, String project,
@@ -670,7 +676,7 @@ public class KubernetesController {
 		try {
 			URL url = new URL("http://" + host + ":" + port + link);
 
-			LOG.debug("HOST: " + host);
+			//LOG.debug("HOST: " + host);
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 

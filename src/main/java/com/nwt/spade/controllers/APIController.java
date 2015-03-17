@@ -44,9 +44,9 @@ public class APIController {
 	public String addEnv(String project, String payload) {
 		JsonObject jsonInput = Json.createReader(new StringReader(payload))
 				.readObject();
-		String os = jsonInput.getString("os");
-		String app = jsonInput.getString("app");
-		String name = jsonInput.getString("name");
+		String os = jsonInput.getString("os").toLowerCase();
+		String app = jsonInput.getString("app").toLowerCase();
+		String name = jsonInput.getString("name").toLowerCase();
 		int replicas = jsonInput.getInt("replicas");
 		/*
 		 * try { System.out.println("Image used: " + template.getImageName());
@@ -101,7 +101,7 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetEnvs");
-		objBuild.add("items", kubeController.getAllEnvs(project).toString());
+		objBuild.add("items", kubeController.getAllEnvs(project));
 		return objBuild.build().toString();
 	}
 
@@ -199,6 +199,15 @@ public class APIController {
 	
 	public String listAllUsers(){
 		return userController.listAllUsers().toString();
+	}
+	
+	public String listAllPods(String project){
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "ListPods");
+		objBuild.add("items", kubeController.getAllPods(project));
+		return objBuild.build().toString();
 	}
 	
 	public String listAllTasks(){

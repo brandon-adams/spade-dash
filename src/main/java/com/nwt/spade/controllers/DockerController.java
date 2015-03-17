@@ -128,7 +128,7 @@ public class DockerController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("label", "extra");
-		objBuild.add("items", db.getImage(project, os, app));
+		objBuild.add("items", db.getImage(project, os.toLowerCase(), app.toLowerCase()));
 		return objBuild.build();
 	}
 	
@@ -137,7 +137,7 @@ public class DockerController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("label", "extra");
-		objBuild.add("items", db.deleteImage(project, os, app));
+		objBuild.add("items", db.deleteImage(project, os.toLowerCase(), app.toLowerCase()));
 		return objBuild.build();
 	}
 	
@@ -146,7 +146,7 @@ public class DockerController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("label", "extra");
-		objBuild.add("items", db.addImage(project, name, os, app));
+		objBuild.add("items", db.addImage(project, name, os.toLowerCase(), app.toLowerCase()));
 		return objBuild.build();
 	}
 	

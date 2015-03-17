@@ -44,22 +44,22 @@ docker:
     server: http://index.docker.io/v1/
     images:
         ubuntu:
-            - web:
+            web:
                 apache: sewatech/modcluster
                 nginx: bradams/devops:nginx-ubuntu
-            - app:
+            app:
                 wildfly: bradams/devops:wildfly-ubuntu
                 tomcat: bradams/devops:tomcat-ubuntu
-            - db:
+            db:
                 mongodb: partlab/ubuntu-mongodb
                 mysql: bradams/devops:mysql-ubuntu
         fedora:
-            - web:
+            web:
                 apache: bradams/devops:apache-fedora
                 nginx: bradams/devops:nginx-fedora
-            - app:
+            app:
                 wildfly: bradams/devops:cluster
                 tomcat: bradams/devops:tomcat-fedora
-            - db:
+            db:
                 mongodb: bradams/devops:mongodb-fedora
                 mysql: jdeathe/centos-ssh-mysql

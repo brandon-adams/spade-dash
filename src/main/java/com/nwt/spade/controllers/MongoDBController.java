@@ -71,6 +71,7 @@ public class MongoDBController {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
 		DBCollection coll = db.getCollection("templates");
 		BasicDBObject query = new BasicDBObject();
+		query.put("id", doc.get("id"));
 		query.put("desiredState.podTemplate.labels.image", imageName);
 		query.put("desiredState.podTemplate.labels.project", project);
 		DBCursor cursor = coll.find(query);
@@ -84,7 +85,7 @@ public class MongoDBController {
 					.readObject();
 			return arrBuild.add(json).build();
 		} else {
-			LOG.info("Inserted: " + coll.insert(doc).toString());
+			LOG.info("Inserted Template: " + coll.insert(doc).toString());
 			json = Json.createReader(new StringReader(template)).readObject();
 			return arrBuild.add(json).build();
 		}
@@ -102,6 +103,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Template: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -122,7 +124,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("Template deleted: " + coll.remove(found));
+			LOG.info("Template removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString())).readObject();
 			arrBuild.add(json);
 		}
@@ -141,6 +143,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Template: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -151,9 +154,9 @@ public class MongoDBController {
 
 	public JsonArray addEnv(String project, String template) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
-		//LOG.debug(template);
+		LOG.debug("Template: " + template);
 		
-		doc.append("_id", doc.get("uid"));
+		doc.append("_id", doc.get("id"));
 		DBCollection coll = db.getCollection("environments");
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", doc.get("_id"));
@@ -185,8 +188,8 @@ public class MongoDBController {
 		DBCollection coll = db.getCollection("pods");
 		BasicDBObject query = new BasicDBObject();
 		//LOG.debug("ID: " + doc.getString("id"));
-		query.put("_id", doc.getString("id"));
-		query.put("labels.project", project);
+		query.put("_id", doc.get("id"));
+		//query.put("labels.project", project);
 		DBCursor cursor = coll.find(query);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
@@ -239,6 +242,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Environment: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -258,6 +262,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Pod: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -277,7 +282,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("Environment removed: " + coll.remove(found));
+			LOG.info("Environment removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -297,7 +302,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("FOUND ENV: " + found.toString());
+			LOG.info("Found Environment: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -306,7 +311,6 @@ public class MongoDBController {
 	}
 	
 	public JsonArray getAllPods(String project) {
-		LOG.debug("PROJECT: " + project);
 		BasicDBObject query = new BasicDBObject();
 		//query.put("desiredState.podTemplate.labels.project", project);
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
@@ -317,7 +321,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("FOUND POD: " + found.toString());
+			LOG.info("Found Pod: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -337,7 +341,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("Pod removed: " + coll.remove(found));
+			LOG.info("Pod removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -388,6 +392,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Image: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -408,7 +413,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("Image removed: " + coll.remove(found));
+			LOG.info("Image removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -427,6 +432,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Image: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -494,6 +500,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Project: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -512,7 +519,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("Project removed: " + coll.remove(found));
+			LOG.info("Project removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -530,6 +537,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Project: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -571,6 +579,26 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Task: " + found.toString());
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
+	
+	public JsonArray deleteTask(String id) {
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		query.put("id", id);
+		DBCollection coll = db.getCollection("mesos_tasks");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Task removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -612,6 +640,26 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Slave: " + found.toString());
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
+	
+	public JsonArray deleteSlave(String id) {
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		query.put("id", id);
+		DBCollection coll = db.getCollection("mesos_slaves");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Slave removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -654,6 +702,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found User: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -672,7 +721,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.debug("User deleted: " + coll.remove(found));
+			LOG.info("User removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -690,9 +739,9 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found User: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
-			LOG.debug("FOUND USER: " + json.toString());
 			arrBuild.add(json);
 		}
 		return arrBuild.build();
