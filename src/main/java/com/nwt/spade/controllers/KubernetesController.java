@@ -5,7 +5,10 @@ import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.PodTemplate;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -207,7 +210,8 @@ public class KubernetesController {
 				.readObject().getJsonArray("items");
 		if (!podList.isEmpty()) {
 			for (JsonValue jval : podList) {
-				String podString = jval.toString().replaceAll("k8s.mesosphere.io", "k8s_mesosphere_io");
+				String podString = jval.toString().replaceAll(
+						"k8s.mesosphere.io", "k8s_mesosphere_io");
 				JsonArray val = db.updatePod(project, podString);
 				objBuild.add("items", val);
 				LOG.info("Synched pod -> pod with KubeApi: " + val);
@@ -219,11 +223,13 @@ public class KubernetesController {
 		JsonArray dbEnvs = db.getAllEnvs(project);
 		if (!dbEnvs.isEmpty()) {
 			for (JsonValue jval : dbEnvs) {
-				//if(((JsonObject)jval).getString("kind").equals("Status")) break;
+				// if(((JsonObject)jval).getString("kind").equals("Status"))
+				// break;
 				boolean remove = false;
-				LOG.debug("DBENV ID: " + ((JsonObject)jval).toString());
+				LOG.debug("DBENV ID: " + ((JsonObject) jval).toString());
 				for (JsonValue envval : envList) {
-					LOG.debug("KBENV ID: " + ((JsonObject)envval).getString("id"));
+					LOG.debug("KBENV ID: "
+							+ ((JsonObject) envval).getString("id"));
 					if (((JsonObject) envval).getString("id").equals(
 							((JsonObject) jval).getString("id"))) {
 						remove = true;
@@ -310,7 +316,7 @@ public class KubernetesController {
 
 		return db.getAllEnvs(project);
 	}
-	
+
 	public JsonArray getAllPods(String project) {
 
 		return db.getAllPods(project);
@@ -676,7 +682,7 @@ public class KubernetesController {
 		try {
 			URL url = new URL("http://" + host + ":" + port + link);
 
-			//LOG.debug("HOST: " + host);
+			// LOG.debug("HOST: " + host);
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 
@@ -708,31 +714,43 @@ public class KubernetesController {
 	}
 
 	private void podTest() {
-		Pod pod = new Pod();
-		pod.setId("mongo-pod");
-		pod.setKind("Pod");
-		pod.setApiVersion("v1beta1");
+		ReplicationController rep = new ReplicationController();
+		rep.setId("mongodb-controller");
+		rep.setKind("ReplicationController");
+		Map<String, String> repLabels = new HashMap<String, String>();
+		repLabels.put("name", "mongodb-controller");
+		rep.setLabels(repLabels);
+
+		ReplicationControllerState repState = new ReplicationControllerState();
+
+		PodTemplate podTemp = new PodTemplate();
 		PodState podState = new PodState();
+
+		// Pod pod = new Pod();
+		// podState.setId("mongo-pod");
+		// pod.setKind("Pod");
+		// pod.setApiVersion("v1beta1");
+
 		ContainerManifest manifest = new ContainerManifest();
 		manifest.setVersion("v1beta1");
 		manifest.setId("mongo-pod");
-
 		List<Container> containers = new ArrayList<>();
-		Container mongodb = new Container();
-		mongodb.setName("mongodb");
-		mongodb.setImage("partlab/ubuntu-mongodb");
+		for (int i = 0; i < 2; i++) {
+			Container mongodb = new Container();
+			mongodb.setName("mongodb");
+			mongodb.setImage("partlab/ubuntu-mongodb");
+			List<Port> ports = new ArrayList<Port>();
+			Port port = new Port();
+			port.setContainerPort(27017);
+			port.setHostPort(31017);
+			ports.add(port);
+			mongodb.setPorts(ports);
+			containers.add(mongodb);
+		}
 
-		List<Port> ports = new ArrayList<Port>();
-		Port port = new Port();
-		port.setContainerPort(27017);
-		port.setHostPort(31017);
-		ports.add(port);
-		mongodb.setPorts(ports);
-
-		containers.add(mongodb);
 		manifest.setContainers(containers);
 		podState.setManifest(manifest);
-		pod.setDesiredState(podState);
+		podTemp.setDesiredState(podState);
 
 		Map<String, String> labels = new HashMap<String, String>();
 		labels.put("name", "mongodb");
@@ -740,33 +758,29 @@ public class KubernetesController {
 		labels.put("image", "partlab/ubuntu-mongodb");
 		labels.put("os", "ubuntu");
 		labels.put("app", "mongodb");
-		pod.setLabels(labels);
-
-		String json = createMongoDBJSON("mongodb-controller", "demo",
+		podTemp.setLabels(labels);
+		repState.setPodTemplate(podTemp);
+		rep.setDesiredState(repState);
+		/*String json = createMongoDBJSON("mongodb-controller", "demo",
 				"partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1);
 		try {
 			pod = (Pod) KubernetesHelper.loadJson(json);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		try {
-			System.out.println(KubernetesHelper.toJson(pod));
+			System.out.println(KubernetesHelper.toJson(rep));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	// public static void main(String[] args) {
-	// KubernetesController test = new KubernetesController();
-	// System.out.println(test.createMongoDBJSON("mongo-controller", "demo",
-	// "partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1));
-	// System.out.println(test.createJbossJSON("jboss-controller", "demo",
-	// "bradams/devops:cluster", "fedora", "wildfly", 1));
-	// System.out.println(test.createApacheJSON("apache-controller", "demo",
-	// "sewatech/modcluster", "ubuntu", "apache", 1));
-	// }
+//	public static void main(String[] args) {
+//		KubernetesController test = new KubernetesController();
+//		test.podTest();
+//	}
 
 	public static class UpdateStatus extends TimerTask {
 

@@ -124,6 +124,7 @@ public class APIController {
 		String name = jsonInput.getString("name");
 		String os = jsonInput.getString("os").toLowerCase();
 		String app = jsonInput.getString("app").toLowerCase();
+		String type = jsonInput.getString("type").toLowerCase(); 
 		return dockerController.addImage(project, name, os.toLowerCase(), app.toLowerCase()).toString();
 	}
 	
