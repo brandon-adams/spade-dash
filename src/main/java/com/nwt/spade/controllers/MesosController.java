@@ -126,6 +126,10 @@ public class MesosController {
 					/Double.parseDouble(statsJson.get("slave/disk_total").toString());
 			double mem = Double.parseDouble(((JsonObject)jval).getJsonObject("resources").get("mem").toString())
 					/Double.parseDouble(statsJson.get("slave/mem_total").toString());
+			
+			//JsonArray pods = db.getAllPods("all");
+			//for (JsonValue)
+			
 			taskBuild.add("name", taskName);
 			taskBuild.add("id", id);
 			taskBuild.add("state", state);

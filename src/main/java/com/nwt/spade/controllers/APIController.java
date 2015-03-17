@@ -110,25 +110,25 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetEnv");
-		objBuild.add("items", kubeController.getEnv(project, id));
+		objBuild.add("items", kubeController.getEnv(project, id.toLowerCase()));
 		return objBuild.build().toString();
 	}
 
 	public String getImage(String project, String os, String app) {
-		return dockerController.getImage(project, os, app).toString();
+		return dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).toString();
 	}
 	
 	public String addImage(String project, String payload) {
 		JsonObject jsonInput = Json.createReader(new StringReader(payload))
 				.readObject();
 		String name = jsonInput.getString("name");
-		String os = jsonInput.getString("os");
-		String app = jsonInput.getString("app");
-		return dockerController.addImage(project, name, os, app).toString();
+		String os = jsonInput.getString("os").toLowerCase();
+		String app = jsonInput.getString("app").toLowerCase();
+		return dockerController.addImage(project, name, os.toLowerCase(), app.toLowerCase()).toString();
 	}
 	
 	public String deleteImage(String project, String os, String app){
-		return dockerController.deleteImage(project, os, app).toString();
+		return dockerController.deleteImage(project, os.toLowerCase(), app.toLowerCase()).toString();
 	}
 
 	public String listAllImages(String project) {
@@ -136,7 +136,7 @@ public class APIController {
 	}
 
 	public String getTemplate(String project, String os, String app) {
-		String imageName = dockerController.getImage(project, os, app).getString("name");
+		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
@@ -155,7 +155,7 @@ public class APIController {
 	}
 	
 	public String deleteTemplate(String project, String os, String app){
-		String imageName = dockerController.getImage(project, os, app).getString("name");
+		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
