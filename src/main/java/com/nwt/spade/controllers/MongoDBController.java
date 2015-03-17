@@ -151,7 +151,8 @@ public class MongoDBController {
 
 	public JsonArray addEnv(String project, String template) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
-		LOG.debug(template);
+		//LOG.debug(template);
+		
 		doc.append("_id", doc.get("uid"));
 		DBCollection coll = db.getCollection("environments");
 		BasicDBObject query = new BasicDBObject();
@@ -161,6 +162,7 @@ public class MongoDBController {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonObject json = objBuild.build();
+		if (doc.containsValue("Status")) return arrBuild.add(json).build();
 		if (cursor.count() > 0) {
 			LOG.info("Environment Exists");
 			json = Json

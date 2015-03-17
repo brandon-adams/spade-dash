@@ -49,14 +49,14 @@ public class KubernetesController {
 	private MongoDBController db;
 	@Value("${kubernetes.host}")
 	private String host;
-	@Value("${kubernetes.port}")
+	@Value("${kubernetes.api.port}")
 	private String port;
-	@Value("${kubernetes.endpoint}")
+	@Value("${kubernetes.api.endpoint}")
 	private String endpoint;
 
 	public KubernetesController() {
 		db = new MongoDBController(true);
-		host = "192.168.4.45";
+		host = "192.168.4.52";
 		port = "8888";
 		endpoint = "/api/v1beta1/pods";
 	}
@@ -218,39 +218,41 @@ public class KubernetesController {
 		JsonArray dbEnvs = db.getAllEnvs(project);
 		if (!dbEnvs.isEmpty()) {
 			for (JsonValue jval : dbEnvs) {
-
-				String selfLink = ((JsonObject) jval).getString("selfLink");
-				String jsonString = kubeApiRequest("GET", selfLink, null);
-				JsonObject jsonObj = Json.createReader(
-						new StringReader(jsonString)).readObject();
-				if (jsonObj.containsValue("NotFound")) {
-					try {
-						db.deleteEnv(project,
-								((JsonObject) jval).getString("id"));
-					} catch (NullPointerException ne) {
-						ne.printStackTrace();
-					} catch (Exception e) {
-						e.printStackTrace();
+				//if(((JsonObject)jval).getString("kind").equals("Status")) break;
+				boolean remove = false;
+				LOG.debug("DBENV ID: " + ((JsonObject)jval).toString());
+				for (JsonValue envval : envList) {
+					LOG.debug("KBENV ID: " + ((JsonObject)envval).getString("id"));
+					if (((JsonObject) envval).getString("id").equals(
+							((JsonObject) jval).getString("id"))) {
+						remove = true;
 					}
 				}
-
+				if (!remove) {
+					LOG.debug("Deleting leftover env: "
+							+ db.deleteEnv(project,
+									((JsonObject) jval).getString("id")));
+				}
 			}
+
 		}
 
 		JsonArray dbPods = db.getAllPods(project);
 		if (!dbPods.isEmpty()) {
 			for (JsonValue jval : dbPods) {
-				LOG.debug("Trying to delete---------------" + jval);
 				boolean remove = false;
+				// LOG.debug("DBPOD ID: " + ((JsonObject)
+				// jval).getString("id"));
 				for (JsonValue podval : podList) {
-					LOG.debug("Trying to delete---------------" + podval);
-					if (((JsonObject) podval)
-							.containsValue(((JsonObject) jval).getString("id"))) {
+					// LOG.debug("KBPOD ID: " + ((JsonObject)
+					// podval).getString("id"));
+					if (((JsonObject) podval).getString("id").equals(
+							((JsonObject) jval).getString("id"))) {
 						remove = true;
 					}
 				}
 				if (!remove) {
-					LOG.debug("Deleting pod: "
+					LOG.debug("Deleting leftover pod: "
 							+ db.deletePod(project,
 									((JsonObject) jval).getString("id")));
 				}
@@ -668,6 +670,7 @@ public class KubernetesController {
 		try {
 			URL url = new URL("http://" + host + ":" + port + link);
 
+			LOG.debug("HOST: " + host);
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 
@@ -692,7 +695,7 @@ public class KubernetesController {
 			connection.disconnect();
 		} catch (Exception e) {
 			// e.printStackTrace();
-			//throw new RuntimeException(e.getMessage());
+			// throw new RuntimeException(e.getMessage());
 		}
 
 		return jsonString.toString();
@@ -749,15 +752,15 @@ public class KubernetesController {
 		}
 	}
 
-//	public static void main(String[] args) {
-//		KubernetesController test = new KubernetesController();
-//		System.out.println(test.createMongoDBJSON("mongo-controller", "demo",
-//				"partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1));
-//		System.out.println(test.createJbossJSON("jboss-controller", "demo",
-//				"bradams/devops:cluster", "fedora", "wildfly", 1));
-//		System.out.println(test.createApacheJSON("apache-controller", "demo",
-//				"sewatech/modcluster", "ubuntu", "apache", 1));
-//	}
+	// public static void main(String[] args) {
+	// KubernetesController test = new KubernetesController();
+	// System.out.println(test.createMongoDBJSON("mongo-controller", "demo",
+	// "partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1));
+	// System.out.println(test.createJbossJSON("jboss-controller", "demo",
+	// "bradams/devops:cluster", "fedora", "wildfly", 1));
+	// System.out.println(test.createApacheJSON("apache-controller", "demo",
+	// "sewatech/modcluster", "ubuntu", "apache", 1));
+	// }
 
 	public static class UpdateStatus extends TimerTask {
 

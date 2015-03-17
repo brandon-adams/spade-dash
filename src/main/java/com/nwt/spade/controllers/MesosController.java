@@ -38,10 +38,18 @@ public class MesosController {
 	private String masterPort;
 	@Value("${mesos.slave.port}")
 	private String slavePort;
+	@Value("${mesos.slave.endpoint}")
+	private String slaveEndpoint;
+	@Value("${mesos.master.endpoint}")
+	private String masterEndpoint;
+	@Value("${kubernetes.tasks.port}")
+	private String kubePort;
+	@Value("${kubernetes.tasks.endpoint}")
+	private String tasksEndpoint;
 	
 	public MesosController() {
 		db = new MongoDBController(true);
-		host = "192.168.4.45";
+		host = "192.168.4.52";
 		slavePort = "5051";
 		masterPort = "5050";
 		//endpoint = "/metrics";
@@ -61,36 +69,6 @@ public class MesosController {
 		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
 	}
 	
-	private String mesosApiRequest(String port, String link) {
-		String line;
-		StringBuffer jsonString = new StringBuffer();
-		try {
-			URL url = new URL("http://" + host + ":" + port + link);
-
-			HttpURLConnection connection = (HttpURLConnection) url
-					.openConnection();
-
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/json");
-			connection.setRequestProperty("Content-Type",
-					"application/json; charset=UTF-8");
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					connection.getInputStream()));
-			while ((line = br.readLine()) != null) {
-				jsonString.append(line);
-			}
-			br.close();
-			connection.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
-		}
-
-		return jsonString.toString();
-	}
-	
 	public JsonArray listAllTasks(){
 		
 		return db.getAllTasks();
@@ -108,9 +86,10 @@ public class MesosController {
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "UpdateTasks");
 		
-		String tasksPayload = mesosApiRequest(slavePort, "/slave(1)/state.json");
+		String tasksPayload = mesosApiRequest(slavePort, slaveEndpoint+"/state.json");
 		String statsPayload = mesosApiRequest(slavePort, "/metrics/snapshot");
-		String slavesPayload = mesosApiRequest(masterPort, "/registrar(1)/registry");
+		String slavesPayload = mesosApiRequest(masterPort, masterEndpoint+"/registry");
+		String kubePayload = mesosApiRequest(masterPort, masterEndpoint+"/registry");
 		JsonObject tasksJson = Json.createReader(new StringReader(tasksPayload)).readObject();
 		JsonObject statsJson = Json.createReader(new StringReader(statsPayload)).readObject();
 		JsonObject slavesJson = Json.createReader(new StringReader(slavesPayload)).readObject();
@@ -149,6 +128,7 @@ public class MesosController {
 			taskBuild.add("id", id);
 			taskBuild.add("state", state);
 			taskBuild.add("slaveId", slaveId);
+			//taskBuild.add("podId", podId);
 			taskBuild.add("cpuPercent", cpu*100);
 			taskBuild.add("diskPercent", disk*100);
 			taskBuild.add("memPercent", mem*100);
@@ -161,11 +141,41 @@ public class MesosController {
 		return objBuild.build();
 	}
 	
-//	public static void main(String[] args){
-//		MesosController mesos = new MesosController();
-//		System.out.println(mesos.updateMesosStats().toString());
-//		//System.out.println(mesos.mesosApiRequest("/stats.json"));
-//	}
+	private String mesosApiRequest(String port, String link) {
+		String line;
+		StringBuffer jsonString = new StringBuffer();
+		try {
+			URL url = new URL("http://" + host + ":" + port + link);
+
+			HttpURLConnection connection = (HttpURLConnection) url
+					.openConnection();
+
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/json");
+			connection.setRequestProperty("Content-Type",
+					"application/json; charset=UTF-8");
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+			while ((line = br.readLine()) != null) {
+				jsonString.append(line);
+			}
+			br.close();
+			connection.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
+		}
+
+		return jsonString.toString();
+	}
+	
+	public static void main(String[] args){
+		MesosController mesos = new MesosController();
+		System.out.println(mesos.mesosApiRequest("10251", "/debug/registry/tasks"));
+		//System.out.println(mesos.mesosApiRequest("/stats.json"));
+	}
 	
 	public static class UpdateTasks extends TimerTask {
 
