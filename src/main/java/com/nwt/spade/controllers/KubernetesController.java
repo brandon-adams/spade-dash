@@ -722,20 +722,19 @@ public class KubernetesController {
 		rep.setLabels(repLabels);
 
 		ReplicationControllerState repState = new ReplicationControllerState();
-
+		repState.setReplicas(1);
+		Map<String, String> repSelect = new HashMap<String, String>();
+		repSelect.put("type", "mongodb-pod");
+		repState.setReplicaSelector(repSelect);
+		
 		PodTemplate podTemp = new PodTemplate();
 		PodState podState = new PodState();
-
-		// Pod pod = new Pod();
-		// podState.setId("mongo-pod");
-		// pod.setKind("Pod");
-		// pod.setApiVersion("v1beta1");
 
 		ContainerManifest manifest = new ContainerManifest();
 		manifest.setVersion("v1beta1");
 		manifest.setId("mongo-pod");
 		List<Container> containers = new ArrayList<>();
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			Container mongodb = new Container();
 			mongodb.setName("mongodb");
 			mongodb.setImage("partlab/ubuntu-mongodb");
@@ -777,10 +776,10 @@ public class KubernetesController {
 		}
 	}
 
-//	public static void main(String[] args) {
-//		KubernetesController test = new KubernetesController();
-//		test.podTest();
-//	}
+	public static void main(String[] args) {
+		KubernetesController test = new KubernetesController();
+		test.podTest();
+	}
 
 	public static class UpdateStatus extends TimerTask {
 
