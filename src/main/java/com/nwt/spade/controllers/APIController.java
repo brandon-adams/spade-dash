@@ -69,8 +69,14 @@ public class APIController {
 			}
 			template.getContainers().add(cont);
 		}
-		kubeController.createPod(template);
-		return "OK";
+		JsonArray jsonReturn = kubeController.createPod(template);
+		
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "CreateEnv");
+		objBuild.add("items", jsonReturn);
+		return objBuild.build().toString();
 	}
 
 	public String addEnv(String project, String payload) {
