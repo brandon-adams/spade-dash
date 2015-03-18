@@ -40,6 +40,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nwt.spade.domain.Template;
 import com.nwt.spade.exceptions.KubernetesOperationException;
 
 @Service
@@ -713,36 +714,56 @@ public class KubernetesController {
 		return jsonString.toString();
 	}
 
-	private void podTest() {
+	public JsonArray createPod(Template template) {
+		LOG.debug("Creating Pod the NEW way");
 		ReplicationController rep = new ReplicationController();
-		rep.setId("mongodb-controller");
+		rep.setId(template.getId());
 		rep.setKind("ReplicationController");
 		Map<String, String> repLabels = new HashMap<String, String>();
-		repLabels.put("name", "mongodb-controller");
+		repLabels.put("name", template.getId());
 		rep.setLabels(repLabels);
 
 		ReplicationControllerState repState = new ReplicationControllerState();
-		repState.setReplicas(1);
+		repState.setReplicas(template.getReplicas());
 		Map<String, String> repSelect = new HashMap<String, String>();
-		repSelect.put("type", "mongodb-pod");
+		repSelect.put("type", template.getSelect());
 		repState.setReplicaSelector(repSelect);
-		
+
 		PodTemplate podTemp = new PodTemplate();
 		PodState podState = new PodState();
 
 		ContainerManifest manifest = new ContainerManifest();
 		manifest.setVersion("v1beta1");
 		manifest.setId("mongo-pod");
+		
+		Map<String, String> labels = new HashMap<String, String>();
+		//labels.put("name", "mongodb");
+		labels.put("type", template.getSelect());
+		//labels.put("image", "partlab/ubuntu-mongodb");
+		//labels.put("os", "ubuntu");
+		
+		
 		List<Container> containers = new ArrayList<>();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < template.getContainers().size(); i++) {
 			Container mongodb = new Container();
-			mongodb.setName("mongodb");
-			mongodb.setImage("partlab/ubuntu-mongodb");
+			String image = db
+					.getImage("", template.getContainers().get(i).getOs(),
+							template.getContainers().get(i).getApp())
+					.getJsonObject(0).getString("image");
+			mongodb.setName(template.getContainers().get(i).getName());
+			labels.put(mongodb.getName()+"-app", template.getContainers().get(i).getApp());
+			mongodb.setImage(image);
 			List<Port> ports = new ArrayList<Port>();
-			Port port = new Port();
-			port.setContainerPort(27017);
-			port.setHostPort(31017);
-			ports.add(port);
+			
+			for (int j=0; j < template.getContainers().get(i).getPorts().size(); j++){
+				Port port = new Port();
+				port.setContainerPort(template.getContainers().get(i)
+						.getPorts().get(j).getContainerPort());
+				port.setHostPort(template.getContainers().get(i)
+						.getPorts().get(j).getHostPort());
+				ports.add(port);
+			}
+			
 			mongodb.setPorts(ports);
 			containers.add(mongodb);
 		}
@@ -750,36 +771,31 @@ public class KubernetesController {
 		manifest.setContainers(containers);
 		podState.setManifest(manifest);
 		podTemp.setDesiredState(podState);
-
-		Map<String, String> labels = new HashMap<String, String>();
-		labels.put("name", "mongodb");
-		labels.put("type", "mongodb-pod");
-		labels.put("image", "partlab/ubuntu-mongodb");
-		labels.put("os", "ubuntu");
-		labels.put("app", "mongodb");
+		
 		podTemp.setLabels(labels);
+		
 		repState.setPodTemplate(podTemp);
 		rep.setDesiredState(repState);
-		/*String json = createMongoDBJSON("mongodb-controller", "demo",
-				"partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1);
+		/*
+		 * String json = createMongoDBJSON("mongodb-controller", "demo",
+		 * "partlab/ubuntu-mongodb", "ubuntu", "mongodb", 1); try { pod = (Pod)
+		 * KubernetesHelper.loadJson(json); } catch (IOException e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); }
+		 */
 		try {
-			pod = (Pod) KubernetesHelper.loadJson(json);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		try {
-			System.out.println(KubernetesHelper.toJson(rep));
+			LOG.debug("REPL: " + KubernetesHelper.toJson(rep));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
 	}
 
-	public static void main(String[] args) {
-		KubernetesController test = new KubernetesController();
-		test.podTest();
-	}
+//	public static void main(String[] args) {
+//		KubernetesController test = new KubernetesController();
+//		Template temp = new Template();
+//		test.createPod(null);
+//	}
 
 	public static class UpdateStatus extends TimerTask {
 

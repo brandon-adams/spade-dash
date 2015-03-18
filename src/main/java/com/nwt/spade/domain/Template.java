@@ -1,17 +1,83 @@
 package com.nwt.spade.domain;
 
-import io.fabric8.kubernetes.api.model.Container;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class Template extends AbstractAuditingEntity implements Serializable {
+public class Template implements Serializable {
 	
-	private String name;
 	private String id;
-	private String version;
+	private String select;
+	private int replicas;
 	private List<Container> containers;
-	private Map<String, String> labels;
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	/**
+	 * @return the select
+	 */
+	public String getSelect() {
+		return select;
+	}
+	/**
+	 * @param select the select to set
+	 */
+	public void setSelect(String select) {
+		this.select = select;
+	}
+	public int getReplicas() {
+		return replicas;
+	}
+	public void setReplicas(int replicas) {
+		this.replicas = replicas;
+	}
+	public List<Container> getContainers() {
+		return containers;
+	}
+	public void setContainers(List<Container> containers) {
+		this.containers = containers;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Template))
+			return false;
+		Template other = (Template) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Template [id=" + id + "]";
+	}
+	
 
 }

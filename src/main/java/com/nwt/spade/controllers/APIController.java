@@ -1,6 +1,7 @@
 package com.nwt.spade.controllers;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.nwt.spade.domain.Container;
+import com.nwt.spade.domain.Port;
+import com.nwt.spade.domain.Template;
 import com.nwt.spade.exceptions.KubernetesOperationException;
 
 @Service
@@ -39,6 +44,33 @@ public class APIController {
 		projController = pr;
 		userController = uc;
 		mesosController = mc;
+	}
+	
+	public String createRepl(String temp){
+		LOG.debug("Trying the new Template stuff" + temp);
+		Template template = new Template();
+		JsonObject json = Json.createReader(new StringReader(temp))
+				.readObject();
+		template.setId(json.getString("id"));
+		template.setReplicas(json.getInt("replicas"));
+		template.setSelect(json.getString("select"));
+		template.setContainers(new ArrayList());
+		for (JsonValue jval : json.getJsonArray("containers")){
+			Container cont = new Container();
+			cont.setOs(((JsonObject)jval).getString("os"));
+			cont.setApp(((JsonObject)jval).getString("app"));
+			cont.setName(((JsonObject)jval).getString("name"));
+			cont.setPorts(new ArrayList());
+			for (JsonValue port : ((JsonObject)jval).getJsonArray("ports")){
+				Port pt = new Port();
+				pt.setContainerPort(((JsonObject)port).getInt("containerPort"));
+				pt.setHostPort(((JsonObject)port).getInt("hostPort"));
+				cont.getPorts().add(pt);
+			}
+			template.getContainers().add(cont);
+		}
+		kubeController.createPod(template);
+		return "OK";
 	}
 
 	public String addEnv(String project, String payload) {
