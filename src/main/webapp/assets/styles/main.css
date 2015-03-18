@@ -1,0 +1,422 @@
+.listing:hover {
+	-webkit-transform: scale(1.1);
+	-moz-transform: scale(1.1);
+	-ms-transform: scale(1.1);
+	-o-transform: scale(1.1);
+	transform: rotate scale(1.1);
+	-webkit-transition: all 0.4s ease-in-out;
+	-moz-transition: all 0.4s ease-in-out;
+	-o-transition: all 0.4s ease-in-out;
+	transition: all 0.4s ease-in-out;
+}
+
+.modal {
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.alert {
+	margin-top: 10px;
+	white-space: nowrap;
+}
+
+.alert-container {
+	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.form-signin {
+	max-width: 360px;
+	padding: 19px 29px 29px;
+	margin: 0 auto 20px;
+	background-color: #fff;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.form-signin .thumbnail {
+	margin-bottom: 10px;
+}
+
+.modal-body .btn-group {
+	margin-bottom: 10px;
+}
+
+.slide-frame {
+	position: relative;
+	height: 200px;
+	overflow: hidden;
+}
+
+.slide-frame>div {
+	width: 100%;
+}
+
+input[type=text], select {
+	width: 50% !important;
+}
+
+/* alert animations */
+.alert.ng-enter, .alert.ng-leave {
+	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.alert.ng-enter {
+	opacity: 0;
+	max-width: 0;
+	max-height: 0;
+	padding: 0;
+	border-width: 0;
+	margin: 0;
+}
+
+.alert.ng-enter-active {
+	opacity: 1;
+	max-width: 100%;
+	max-height: 100px;
+	padding: 15px 35px 15px 15px;
+	border-width: 1px;
+	margin: 10px 0 20px;
+}
+
+.alert.ng-leave {
+	opacity: 1;
+	max-width: 100%;
+	max-height: 100px;
+	padding: 15px 35px 15px 15px;
+	border-width: 1px;
+	margin: 10px 0 20px;
+}
+
+.alert.ng-leave-active {
+	opacity: 0;
+	max-width: 0;
+	max-height: 0;
+	padding: 0;
+	border-width: 0;
+	margin: 0;
+}
+
+/* modal and step animations */
+.wave.ng-enter, .wave.ng-leave {
+	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.wave.ng-enter {
+	position: absolute;
+	left: -100%;
+}
+
+.wave.ng-enter-active {
+	left: 0;
+}
+
+.wave.ng-leave {
+	position: absolute;
+	left: 0;
+}
+
+.wave.ng-leave-active {
+	left: 100%;
+}
+
+body {
+	background: #fafafa;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+.prov-step {
+	width: 100px;
+	height: 100px;
+	background: red;
+}
+
+.modal {
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.alert {
+	margin-top: 10px;
+	white-space: nowrap;
+}
+
+.alert-container {
+	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.form-signin {
+	max-width: 360px;
+	padding: 19px 29px 29px;
+	margin: 0 auto 20px;
+	background-color: #fff;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.form-signin .thumbnail {
+	margin-bottom: 10px;
+}
+
+.modal-body .btn-group {
+	margin-bottom: 10px;
+}
+
+.slide-frame {
+	position: relative;
+	height: 200px;
+	overflow: hidden;
+}
+
+.slide-frame>div {
+	width: 100%;
+}
+
+input[type=text], select {
+	width: 50% !important;
+}
+
+/* alert animations */
+.alert.ng-enter, .alert.ng-leave {
+	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.alert.ng-enter {
+	opacity: 0;
+	max-width: 0;
+	max-height: 0;
+	padding: 0;
+	border-width: 0;
+	margin: 0;
+}
+
+.alert.ng-enter-active {
+	opacity: 1;
+	max-width: 100%;
+	max-height: 100px;
+	padding: 15px 35px 15px 15px;
+	border-width: 1px;
+	margin: 10px 0 20px;
+}
+
+.alert.ng-leave {
+	opacity: 1;
+	max-width: 100%;
+	max-height: 100px;
+	padding: 15px 35px 15px 15px;
+	border-width: 1px;
+	margin: 10px 0 20px;
+}
+
+.alert.ng-leave-active {
+	opacity: 0;
+	max-width: 0;
+	max-height: 0;
+	padding: 0;
+	border-width: 0;
+	margin: 0;
+}
+
+/* modal and step animations */
+.wave.ng-enter, .wave.ng-leave {
+	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.wave.ng-enter {
+	position: absolute;
+	left: -100%;
+}
+
+.wave.ng-enter-active {
+	left: 0;
+}
+
+.wave.ng-leave {
+	position: absolute;
+	left: 0;
+}
+
+.wave.ng-leave-active {
+	left: 100%;
+}
+
+/* ==========================================================================
+Hide ng-cloak on page load, https://docs.angularjs.org/api/ng/directive/ngCloak
+========================================================================== */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak,
+	.x-ng-cloak {
+	display: none !important;
+}
+
+/* ==========================================================================
+Developement Ribbon
+========================================================================== */
+.development {
+	position: absolute;
+	width: 149px;
+	height: 149px;
+	top: 0;
+	left: 0;
+	border: 0;
+	z-index: 1000;
+	background-image: url("../images/development_ribbon.png");
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+/* ==========================================================================
+Version number in navbar
+========================================================================== */
+.navbar-version {
+	font-size: 10px;
+	color: #ccc
+}
+
+/* ==========================================================================
+Browser Upgrade Prompt
+========================================================================== */
+.browserupgrade {
+	margin: 0.2em 0;
+	background: #ccc;
+	color: #000;
+	padding: 0.2em 0;
+}
+
+.hero-unit {
+	margin: 50px auto 0 auto;
+	width: 300px;
+	font-size: 18px;
+	font-weight: 200;
+	line-height: 30px;
+	background-color: #eee;
+	border-radius: 6px;
+	padding: 60px;
+}
+
+.hero-unit h1 {
+	font-size: 60px;
+	line-height: 1;
+	letter-spacing: -1px;
+}
+
+.error {
+	color: white;
+	background-color: red;
+}
+
+.hipster {
+	display: inline-block;
+	width: 347px;
+	height: 497px;
+	background: url("../images/hipster.png") no-repeat center top;
+	background-size: contain;
+}
+
+/* wait autoprefixer update to allow simple generation of high pixel density media query */
+@media only screen and (-webkit-min-device-pixel-ratio: 2) , only screen and (
+		min--moz-device-pixel-ratio: 2) , only screen and (
+		-o-min-device-pixel-ratio: 2/1) , only screen and (
+		min-device-pixel-ratio: 2) , only screen and ( min-resolution: 192dpi)
+		, only screen and ( min-resolution: 2dppx) {
+	.hipster {
+		background: url("../images/hipster2x.png") no-repeat center top;
+		background-size: contain;
+	}
+}
+
+.hand {
+	cursor: pointer;
+}
+
+#threadDump .popover, #healthCheck .popover {
+	top: inherit;
+	display: block;
+	font-size: 10px;
+	max-width: 1024px;
+}
+
+#healthCheck .popover {
+	margin-left: -50px;
+}
+
+.alert .popover pre {
+	font-size: 10px;
+}
+
+.voffset {
+	margin-top: 2px;
+}
+
+.voffset1 {
+	margin-top: 5px;
+}
+
+.voffset2 {
+	margin-top: 10px;
+}
+
+.voffset3 {
+	margin-top: 15px;
+}
+
+.voffset4 {
+	margin-top: 30px;
+}
+
+.voffset5 {
+	margin-top: 40px;
+}
+
+.voffset6 {
+	margin-top: 60px;
+}
+
+.voffset7 {
+	margin-top: 80px;
+}
+
+.voffset8 {
+	margin-top: 100px;
+}
+
+.voffset9 {
+	margin-top: 150px;
+}
+
+/* start Password strength bar style */
+ul#strength {
+	display: inline;
+	list-style: none;
+	margin: 0;
+	margin-left: 15px;
+	padding: 0;
+	vertical-align: 2px;
+}
+
+.point:last {
+	margin: 0 !important;
+}
+
+.point {
+	background: #DDD;
+	border-radius: 2px;
+	display: inline-block;
+	height: 5px;
+	margin-right: 1px;
+	width: 20px;
+}
+/* end Password strength bar style */
