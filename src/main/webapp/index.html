@@ -49,22 +49,26 @@
         <!--[if lt IE 10]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <div ng-show="{{ENV === 'dev'}}" class="development" ng-cloak=""></div>
-        <div ui-view="navbar" ng-cloak=""></div>
-        <md-content layout="column" flex class="content-wrapper" id="content" style="background-color: #f1f7f9;">
+	<!-- <div ng-show="{{ENV === 'dev'}}" class="development" ng-cloak=""></div> -->
+	
+	
+	<!-- <md-button>
+  Button
+</md-button> -->
+<md-toolbar layout="row" layout-align="center">
+      <h1>Self Service Portal Automating Deployment Environments</h1>
+    </md-toolbar>
+	
+	  <section layout="row" flex>
+	
+	<div ui-view="navbar" layout="vertical" ng-cloak="">
+	<!-- <div class="container"> -->
+		</div>
+	
+		<md-content layout="column" flex class="content-wrapper" id="content" style="background-color: #f1f7f9;">
 		<div ui-view="content"></div>
 		</md-content>
-        <div class="container">
-            <!--div class="well" ui-view="content"></div-->
-
-            <div class="footer">
-            <script type="text/javascript">
-            var div = document.createElement("div");
-            div.innerHTML = "Hello World";
-            document.body.appendChild(div);</script>
-                <p translate="footer">This is your footer</p>
-            </div>
-        </div>
+	</section>
 
         <!-- Google Analytics: uncomment and change UA-XXXXX-X to be your site's ID.
         <script>
