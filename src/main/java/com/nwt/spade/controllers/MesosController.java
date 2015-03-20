@@ -148,7 +148,7 @@ public class MesosController {
 
 			LOG.debug("DBPODS: " + dbPods);
 			for (JsonValue pod : dbPods) {
-				String sid = ((JsonObject) pod).getJsonObject("attributes")
+				String sid = ((JsonObject) pod).getJsonObject("annotations")
 						.getString("k8s_mesosphere_io/taskId");
 				LOG.debug("SLAVE ID: " + sid);
 				String podName = ((JsonObject) pod).getString("id");

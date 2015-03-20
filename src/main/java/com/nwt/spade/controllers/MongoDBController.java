@@ -432,7 +432,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.info("Found Image: " + found.toString());
+			//LOG.info("Found Image: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
