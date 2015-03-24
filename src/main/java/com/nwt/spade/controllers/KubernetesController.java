@@ -284,6 +284,26 @@ public class KubernetesController {
 
 		return db.getAllTemplates(project);
 	}
+	
+	public JsonArray createStack(String project, String template) {
+
+		return db.updateStack(project, template);
+	}
+	
+	public JsonArray getStack(String project, String id) {
+
+		return db.getStack(project, id);
+	}
+
+	public JsonArray deleteStack(String project, String id) {
+
+		return db.deleteStack(project, id);
+	}
+
+	public JsonArray getAllStacks(String project) {
+
+		return db.getAllStacks(project);
+	}
 
 	public JsonArray getEnv(String project, String id) {
 
