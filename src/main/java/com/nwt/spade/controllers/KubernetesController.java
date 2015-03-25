@@ -60,9 +60,9 @@ public class KubernetesController {
 
 	public KubernetesController() {
 		db = new MongoDBController(true);
-		host = "192.168.4.52";
+		host = "192.168.4.40";
 		port = "8888";
-		endpoint = "/api/v1beta1/pods";
+		endpoint = "/api/v1beta2/pods";
 	}
 
 	@Autowired
@@ -703,7 +703,7 @@ public class KubernetesController {
 		try {
 			URL url = new URL("http://" + host + ":" + port + link);
 
-			// LOG.debug("HOST: " + host);
+			LOG.debug("HOST: " + host);
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 

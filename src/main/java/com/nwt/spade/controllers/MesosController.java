@@ -32,8 +32,8 @@ public class MesosController {
 			.getLogger(MesosController.class);
 
 	private MongoDBController db;
-	@Value("${mesos.host}")
-	private String host;
+	@Value("${mesos.master.host}")
+	private String masterHost;
 	@Value("${mesos.master.port}")
 	private String masterPort;
 	@Value("${mesos.slave.port}")
@@ -42,14 +42,12 @@ public class MesosController {
 	private String slaveEndpoint;
 	@Value("${mesos.master.endpoint}")
 	private String masterEndpoint;
-	@Value("${kubernetes.tasks.port}")
-	private String kubePort;
-	@Value("${kubernetes.tasks.endpoint}")
-	private String tasksEndpoint;
+	@Value("${mesos.slave.hosts}")
+	private String[] slaves;
 
 	public MesosController() {
 		db = new MongoDBController(true);
-		host = "192.168.4.52";
+		masterHost = "192.168.4.40";
 		slavePort = "5051";
 		masterPort = "5050";
 		// endpoint = "/metrics";
@@ -78,27 +76,117 @@ public class MesosController {
 		return db.getAllSlaves();
 	}
 
-	public JsonObject updateMesosStats() {
+	public void updateMesosStats() {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder slaveArrBuild = Json.createArrayBuilder();
 		JsonArrayBuilder taskArrBuild = Json.createArrayBuilder();
 
-		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
-		objBuild.add("type", "UpdateTasks");
-
-		String tasksPayload = mesosApiRequest(slavePort, slaveEndpoint
-				+ "/state.json");
-		String statsPayload = mesosApiRequest(slavePort, "/metrics/snapshot");
-		String slavesPayload = mesosApiRequest(masterPort, masterEndpoint
-				+ "/registry");
-
-		JsonObject tasksJson = Json
-				.createReader(new StringReader(tasksPayload)).readObject();
-		JsonObject statsJson = Json
-				.createReader(new StringReader(statsPayload)).readObject();
+		String slavesPayload = mesosApiRequest(masterHost, masterPort,
+				masterEndpoint + "/registry");
 		JsonObject slavesJson = Json.createReader(
 				new StringReader(slavesPayload)).readObject();
+
+		JsonArray dbPods = db.getAllPods("all");
+
+		for (String slave : slaves) {
+			String tasksPayload = mesosApiRequest(slave, slavePort,
+					slaveEndpoint + "/state.json");
+			JsonObject tasksJson = Json.createReader(
+					new StringReader(tasksPayload)).readObject();
+
+			String statsPayload = mesosApiRequest(slave, slavePort,
+					"/metrics/snapshot");
+			JsonObject statsJson = Json.createReader(
+					new StringReader(statsPayload)).readObject();
+
+			if (!tasksJson.getJsonArray("frameworks").isEmpty()) {
+				LOG.debug("FRAMEWORKS NOT EMPTY");
+				for (JsonValue framework : tasksJson.getJsonArray("frameworks")) {
+					if (!((JsonObject) framework).getJsonArray("executors")
+							.isEmpty()) {
+						LOG.debug("FOUND EXECUTOR: "
+								+ tasksJson.getJsonArray("executors"));
+						for (JsonValue executor : ((JsonObject) framework)
+								.getJsonArray("executors")) {
+							if (((JsonObject) executor).getString("id").equals(
+									"KubeleteExecutorID")) {
+								JsonArray kubeTasks = ((JsonObject) executor)
+										.getJsonArray("tasks");
+								if (!kubeTasks.isEmpty()) {
+									LOG.debug("TASKS NOT EMPTY");
+									for (JsonValue jval : kubeTasks) {
+										JsonObjectBuilder taskBuild = Json
+												.createObjectBuilder();
+										String taskName = ((JsonObject) jval)
+												.getString("name");
+										String id = ((JsonObject) jval)
+												.getString("id");
+										String state = ((JsonObject) jval)
+												.getString("state");
+										String slaveId = ((JsonObject) jval)
+												.getString("slave_id");
+										double cpu = Double
+												.parseDouble(((JsonObject) jval)
+														.getJsonObject(
+																"resources")
+														.get("cpus").toString())
+												/ Double.parseDouble(statsJson
+														.get("slave/cpus_total")
+														.toString());
+										double disk = Double
+												.parseDouble(((JsonObject) jval)
+														.getJsonObject(
+																"resources")
+														.get("disk").toString())
+												/ Double.parseDouble(statsJson
+														.get("slave/disk_total")
+														.toString());
+										double mem = Double
+												.parseDouble(((JsonObject) jval)
+														.getJsonObject(
+																"resources")
+														.get("mem").toString())
+												/ Double.parseDouble(statsJson
+														.get("slave/mem_total")
+														.toString());
+
+										taskBuild.add("name", taskName);
+										taskBuild.add("id", id);
+										taskBuild.add("state", state);
+										taskBuild.add("slaveId", slaveId);
+										taskBuild.add("cpuPercent", cpu * 100);
+										taskBuild
+												.add("diskPercent", disk * 100);
+										taskBuild.add("memPercent", mem * 100);
+										for (JsonValue pod : dbPods) {
+											String sid = ((JsonObject) pod)
+													.getJsonObject(
+															"annotations")
+													.getString(
+															"k8s_mesosphere_io/taskId");
+											String podName = ((JsonObject) pod)
+													.getString("id");
+											if (id.equalsIgnoreCase(sid))
+												taskBuild.add("podName",
+														podName);
+										}
+
+										JsonObject taskJson = taskBuild.build();
+										LOG.info("Synched task -> task with Mesos: "
+												+ db.updateTask(taskJson
+														.toString()));
+										taskArrBuild.add(taskJson);
+									}
+								} else {
+									LOG.info("No Tasks running on the Mesos Slave");
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		JsonArray tasks = taskArrBuild.build();
 
 		for (JsonValue jval : slavesJson.getJsonObject("slaves").getJsonArray(
 				"slaves")) {
@@ -120,57 +208,6 @@ public class MesosController {
 		}
 
 		JsonArray slaves = slaveArrBuild.build();
-		JsonArray dbPods = db.getAllPods("all");
-
-		for (JsonValue jval : tasksJson.getJsonArray("frameworks")
-				.getJsonObject(0).getJsonArray("executors").getJsonObject(0)
-				.getJsonArray("tasks")) {
-			JsonObjectBuilder taskBuild = Json.createObjectBuilder();
-			String taskName = ((JsonObject) jval).getString("name");
-			String id = ((JsonObject) jval).getString("id");
-			String state = ((JsonObject) jval).getString("state");
-			String slaveId = ((JsonObject) jval).getString("slave_id");
-			double cpu = Double.parseDouble(((JsonObject) jval)
-					.getJsonObject("resources").get("cpus").toString())
-					/ Double.parseDouble(statsJson.get("slave/cpus_total")
-							.toString());
-			double disk = Double.parseDouble(((JsonObject) jval)
-					.getJsonObject("resources").get("disk").toString())
-					/ Double.parseDouble(statsJson.get("slave/disk_total")
-							.toString());
-			double mem = Double.parseDouble(((JsonObject) jval)
-					.getJsonObject("resources").get("mem").toString())
-					/ Double.parseDouble(statsJson.get("slave/mem_total")
-							.toString());
-
-			// JsonArray pods = db.getAllPods("all");
-			// for (JsonValue)
-
-			LOG.debug("DBPODS: " + dbPods);
-			for (JsonValue pod : dbPods) {
-				String sid = ((JsonObject) pod).getJsonObject("annotations")
-						.getString("k8s_mesosphere_io/taskId");
-				LOG.debug("SLAVE ID: " + sid);
-				String podName = ((JsonObject) pod).getString("id");
-				LOG.debug("POD NAME: " + podName);
-				if (id.equalsIgnoreCase(sid)) taskBuild.add("podName", podName);
-			}
-
-			taskBuild.add("name", taskName);
-			taskBuild.add("id", id);
-			taskBuild.add("state", state);
-			taskBuild.add("slaveId", slaveId);
-			// taskBuild.add("podId", podId);
-			taskBuild.add("cpuPercent", cpu * 100);
-			taskBuild.add("diskPercent", disk * 100);
-			taskBuild.add("memPercent", mem * 100);
-			JsonObject taskJson = taskBuild.build();
-			LOG.info("Synched task -> task with Mesos: "
-					+ db.updateTask(taskJson.toString()));
-			taskArrBuild.add(taskJson);
-		}
-
-		JsonArray tasks = taskArrBuild.build();
 
 		JsonArray dbSlaves = db.getAllSlaves();
 		if (!dbSlaves.isEmpty()) {
@@ -209,10 +246,10 @@ public class MesosController {
 		}
 		objBuild.add("items", tasks);
 
-		return objBuild.build();
+		// return objBuild.build();
 	}
 
-	private String mesosApiRequest(String port, String link) {
+	private String mesosApiRequest(String host, String port, String link) {
 		String line;
 		StringBuffer jsonString = new StringBuffer();
 		try {
