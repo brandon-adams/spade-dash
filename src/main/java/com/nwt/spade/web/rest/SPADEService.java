@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nwt.spade.controllers.APIController;
 import com.nwt.spade.controllers.APIController.API;
-import com.nwt.spade.domain.Template;
 
 @Service
 @RestController
@@ -94,6 +93,18 @@ public class SPADEService {
 	@RequestMapping(value = "/api/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllUsers() {
 		return new ResponseEntity<String>(apiController.listAllUsers(),
+				HttpStatus.FOUND);
+	}
+	
+	@RequestMapping(value = "/api/{project}/stacks", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
+	public @ResponseBody ResponseEntity<String> createStack(@RequestBody String template) {
+		return new ResponseEntity<String>(apiController.addStack("demo", template),
+				HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/api/stacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> listAllStacks() {
+		return new ResponseEntity<String>(apiController.listAllStacks("all"),
 				HttpStatus.FOUND);
 	}
 

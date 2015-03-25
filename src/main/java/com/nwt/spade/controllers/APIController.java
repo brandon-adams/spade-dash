@@ -173,6 +173,42 @@ public class APIController {
 	public String listAllImages(String project) {
 		return dockerController.getAllImages(project).toString();
 	}
+	
+	public String getStack(String project, String id) {
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "GetStack");
+		objBuild.add("items", kubeController.getStack(project, id));
+		return objBuild.build().toString();
+	}
+
+	public String listAllStacks(String project) {
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "GetStacks");
+		objBuild.add("items", kubeController.getAllStacks(project));
+		return objBuild.build().toString();
+	}
+	
+	public String deleteStack(String project, String id){
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "DeleteStack");
+		objBuild.add("items", kubeController.deleteStack(project, id));
+		return objBuild.build().toString();
+	}
+	
+	public String addStack(String project, String template) {
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "CreateStack");
+		objBuild.add("items", kubeController.createStack(project, template));
+		return objBuild.build().toString();
+	}
 
 	public String getTemplate(String project, String os, String app) {
 		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");

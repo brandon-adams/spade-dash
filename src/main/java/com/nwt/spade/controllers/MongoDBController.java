@@ -205,6 +205,89 @@ public class MongoDBController {
 			return arrBuild.add(json).build();
 		}
 	}
+	
+	public JsonArray updateStack(String project, String template) {
+		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
+		doc.append("_id", doc.get("id"));
+		DBCollection coll = db.getCollection("stacks");
+		BasicDBObject query = new BasicDBObject();
+		//LOG.debug("ID: " + doc.getString("id"));
+		query.put("_id", doc.get("id"));
+		//query.put("labels.project", project);
+		DBCursor cursor = coll.find(query);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		if (cursor.count() > 0) {
+			LOG.info("Stack found and updated: "
+					+ coll.update(query, doc, true, false));
+			json = Json.createReader(new StringReader(template)).readObject();
+			return arrBuild.add(json).build();
+		} else {
+			LOG.info("Stack inserted: " + coll.insert(doc));
+			json = Json.createReader(new StringReader(template)).readObject();
+			return arrBuild.add(json).build();
+		}
+	}
+	
+	public JsonArray getStack(String project, String id) {
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		query.put("id", id);
+		//query.put("desiredState.podTemplate.labels.project", project);
+		DBCollection coll = db.getCollection("stacks");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Stack: " + found.toString());
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
+	
+	public JsonArray deleteStack(String project, String id) {
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		query.put("id", id);
+		//query.put("desiredState.podTemplate.labels.project", project);
+		DBCollection coll = db.getCollection("stacks");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Stack removed: " + coll.remove(found));
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
+	
+	public JsonArray getAllStacks(String project) {
+		BasicDBObject query = new BasicDBObject();
+		//query.put("desiredState.podTemplate.labels.project", project); NEED TO IMPLEMENT PROJECT BASED
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		DBCollection coll = db.getCollection("stacks");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Stack: " + found.toString());
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
 
 	public JsonArray updateEnv(String project, String template) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
@@ -432,7 +515,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.info("Found Image: " + found.toString());
+			//LOG.info("Found Image: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
