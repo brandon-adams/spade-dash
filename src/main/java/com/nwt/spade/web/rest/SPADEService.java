@@ -51,49 +51,49 @@ public class SPADEService {
 	@RequestMapping(value = "/api/templates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllTemplates() {
 		return new ResponseEntity<String>(apiController.listAllTemplates("all"),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/api/images", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllimages() {
 		return new ResponseEntity<String>(apiController.listAllImages("all"),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/api/env", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllEnvs() {
 		return new ResponseEntity<String>(apiController.listAllEnvs("all"),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/api/pods", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllPods() {
 		return new ResponseEntity<String>(apiController.listAllPods("all"),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/api/proj", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllProjects() {
 		return new ResponseEntity<String>(apiController.listAllProjects("all"),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/api/tasks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllTasks() {
 		return new ResponseEntity<String>(apiController.listAllTasks(),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/api/slaves", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllSlaves() {
 		return new ResponseEntity<String>(apiController.listAllSlaves(),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/api/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllUsers() {
 		return new ResponseEntity<String>(apiController.listAllUsers(),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/api/{project}/stacks", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
@@ -105,7 +105,7 @@ public class SPADEService {
 	@RequestMapping(value = "/api/stacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllStacks() {
 		return new ResponseEntity<String>(apiController.listAllStacks("all"),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 }
