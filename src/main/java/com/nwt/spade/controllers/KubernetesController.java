@@ -74,6 +74,7 @@ public class KubernetesController {
 	public void init() {
 		TimerTask updateTask = new UpdateStatus(this);
 		Timer timer = new Timer(true);
+		host="192.168.4.40";
 		LOG.info("Setting TimerTask in KubernetesController");
 		// scheduling the task at fixed rate delay
 		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
