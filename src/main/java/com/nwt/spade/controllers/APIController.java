@@ -39,12 +39,13 @@ public class APIController {
 			.getLogger(APIController.class);
 
 	@Autowired
-	public APIController(DockerController dc, KubernetesController kc, ProjectController pr, UserController uc, MesosController mc) {
+	public APIController(DockerController dc, KubernetesController kc, ProjectController pr, UserController uc, MesosController mc, StackController sc) {
 		dockerController = dc;
 		kubeController = kc;
 		projController = pr;
 		userController = uc;
 		mesosController = mc;
+		stackController = sc;
 	}
 	
 	public String createRepl(String temp){
@@ -208,7 +209,12 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "CreateStack");
-		objBuild.add("items", stackController.createStack(project, payload));
+		try {
+			objBuild.add("items", stackController.createStack(project, payload));
+		} catch (KubernetesOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return objBuild.build().toString();
 	}
 	
