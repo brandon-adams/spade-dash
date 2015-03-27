@@ -20,34 +20,37 @@ import com.nwt.spade.controllers.APIController.API;
 @Service
 @RestController
 @RequestMapping("/spade/api")
-public class TemplateService {
+public class StackService {
 
 	private APIController apiController;
 	private static final Logger LOG = LoggerFactory
-			.getLogger(TemplateService.class);
+			.getLogger(StackService.class);
 
 	@Autowired
-	public TemplateService(APIController api) {
+	public StackService(APIController api) {
 		apiController = api;
 	}
 
-	@RequestMapping(value = "/{project}/templates/{os}/{app}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<String> getTemplate(
-			@PathVariable String project, @PathVariable String os,
-			@PathVariable String app) {
-		return new ResponseEntity<String>(apiController.getTemplate(project, os, app),
+	@RequestMapping(value = "/{project}/stacks/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> getStack(@PathVariable String project,
+			@PathVariable String name) {
+		return new ResponseEntity<String>(apiController.getStack(project, name),
 				HttpStatus.OK);
 	}
-
-	@RequestMapping(value = "/{project}/templates/{os}/{app}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<String> deleteTemplate(
-			@PathVariable String project, @PathVariable String os,
-			@PathVariable String app) {
-		return new ResponseEntity<String>(
-				apiController.deleteTemplate(project, os, app), HttpStatus.OK);
+	
+	@RequestMapping(value = "/{project}/stacks", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
+	public @ResponseBody ResponseEntity<String> createStack(@RequestBody String template) {
+		return new ResponseEntity<String>(apiController.addStack("demo", template),
+				HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/{project}/stacks/{name}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> deleteTemplate(@PathVariable String project,
+			@PathVariable String name) {
+		return new ResponseEntity<String>(apiController.deleteStack(project, name), HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{project}/templates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/stacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllTemplates(
 			@PathVariable String project) {
 		return new ResponseEntity<String>(apiController.listAllTemplates(project),
