@@ -80,9 +80,8 @@ public class KubernetesController {
 		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
 	}
 
-	public void createTemplate(String project, String imageName, String os,
-			String app) {
-
+	public JsonArray createStack(String project, String template) {
+		
 	}
 
 	public JsonArray createEnv(String stack, String name, String project, String imageName,
@@ -280,26 +279,6 @@ public class KubernetesController {
 
 		return db.getAllContTemplates(project);
 	}
-	
-	public JsonArray createStack(String project, String template) {
-
-		return db.updateStack(project, template);
-	}
-	
-	public JsonArray getStack(String project, String id) {
-
-		return db.getStack(project, id);
-	}
-
-	public JsonArray deleteStack(String project, String id) {
-
-		return db.deleteStack(project, id);
-	}
-
-	public JsonArray getAllStacks(String project) {
-
-		return db.getAllStacks(project);
-	}
 
 	public JsonArray getEnv(String project, String id) {
 
@@ -451,6 +430,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-mysql")
 																.add("type",
 																		stack+"-"+name+"-mysql-pod")
+																.add("stack", stack)
 																.add("image",
 																		imageName)
 																.add("os", os)

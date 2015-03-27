@@ -20,14 +20,14 @@ import com.nwt.spade.controllers.APIController.API;
 @Service
 @RestController
 @RequestMapping("/spade/api")
-public class EnvironmentService {
+public class ControllerService {
 
 	private APIController apiController;
 	private static final Logger LOG = LoggerFactory
-			.getLogger(EnvironmentService.class);
+			.getLogger(ControllerService.class);
 
 	@Autowired
-	public EnvironmentService(APIController api) {
+	public ControllerService(APIController api) {
 		apiController = api;
 	}
 

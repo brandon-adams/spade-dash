@@ -32,6 +32,7 @@ public class APIController {
 	protected KubernetesController kubeController;
 	protected ProjectController projController;
 	protected MesosController mesosController;
+	protected StackController stackController;
 	protected UserController userController;
 
 	private static final Logger LOG = LoggerFactory
@@ -85,6 +86,7 @@ public class APIController {
 		String os = jsonInput.getString("os").toLowerCase();
 		String app = jsonInput.getString("app").toLowerCase();
 		String name = jsonInput.getString("name").toLowerCase();
+		String stack = jsonInput.getString("stack").toLowerCase();
 		int replicas = jsonInput.getInt("replicas");
 		/*
 		 * try { System.out.println("Image used: " + template.getImageName());
@@ -103,7 +105,7 @@ public class APIController {
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonArray jsonReturn = arrBuild.build();
 		try {
-			jsonReturn = kubeController.createEnv(name, project, imageName, os, app, replicas);
+			jsonReturn = kubeController.createEnv(stack, name, project, imageName, os, app, replicas);
 		} catch (KubernetesOperationException e) {
 			// Insert error message into Json Object
 			e.printStackTrace();
@@ -179,7 +181,7 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetStack");
-		objBuild.add("items", kubeController.getStack(project, id));
+		objBuild.add("items", stackController.getStack(project, id));
 		return objBuild.build().toString();
 	}
 
@@ -188,7 +190,7 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetStacks");
-		objBuild.add("items", kubeController.getAllStacks(project));
+		objBuild.add("items", stackController.getAllStacks(project));
 		return objBuild.build().toString();
 	}
 	
@@ -197,16 +199,52 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "DeleteStack");
-		objBuild.add("items", kubeController.deleteStack(project, id));
+		objBuild.add("items", stackController.deleteStack(project, id));
 		return objBuild.build().toString();
 	}
 	
-	public String addStack(String project, String template) {
+	public String addStack(String project, String payload) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "CreateStack");
-		objBuild.add("items", kubeController.createStack(project, template));
+		objBuild.add("items", stackController.createStack(project, payload));
+		return objBuild.build().toString();
+	}
+	
+	public String getStackTemp(String project, String id) {
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "GetStackTemplate");
+		objBuild.add("items", stackController.getStackTemp(project, id));
+		return objBuild.build().toString();
+	}
+
+	public String listAllStackTemps(String project) {
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "GetStacks");
+		objBuild.add("items", stackController.getAllStackTemps(project));
+		return objBuild.build().toString();
+	}
+	
+	public String deleteStackTemp(String project, String id){
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "DeleteStack");
+		objBuild.add("items", stackController.deleteStackTemp(project, id));
+		return objBuild.build().toString();
+	}
+	
+	public String addStackTemp(String project, String template) {
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", new Date().getTime());
+		objBuild.add("type", "CreateStack");
+		objBuild.add("items", stackController.createStackTemp(project, template));
 		return objBuild.build().toString();
 	}
 
