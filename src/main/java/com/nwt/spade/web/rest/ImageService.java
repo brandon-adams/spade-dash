@@ -35,7 +35,7 @@ public class ImageService {
 	public @ResponseBody ResponseEntity<String> listAllimages(
 			@PathVariable String project) {
 		return new ResponseEntity<String>(apiController.listAllImages(project),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/images/{os}/{app}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,14 +43,14 @@ public class ImageService {
 			@PathVariable String project, @PathVariable String os,
 			@PathVariable String app) {
 		return new ResponseEntity<String>(apiController.getImage(project, os, app),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/images/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> addImage(
 			@PathVariable String project, @RequestBody String payload) {
 		return new ResponseEntity<String>(apiController.addImage(project, payload),
-				HttpStatus.CREATED);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/images/{os}/{app}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)

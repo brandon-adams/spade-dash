@@ -67,9 +67,9 @@ public class MongoDBController {
 		}
 	}
 
-	public JsonArray addTemplate(String project, String template, String imageName) {
+	public JsonArray addContTemplate(String project, String template, String imageName) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
-		DBCollection coll = db.getCollection("templates");
+		DBCollection coll = db.getCollection("controller_templates");
 		BasicDBObject query = new BasicDBObject();
 		query.put("id", doc.get("id"));
 		query.put("desiredState.podTemplate.labels.image", imageName);
@@ -91,12 +91,12 @@ public class MongoDBController {
 		}
 	}
 
-	public JsonArray getTemplate(String project, String imageName) {
+	public JsonArray getContTemplate(String project, String imageName) {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
 		query.put("desiredState.podTemplate.labels.image", imageName);
 		query.put("desiredState.podTemplate.labels.project", project);
-		DBCollection coll = db.getCollection("templates");
+		DBCollection coll = db.getCollection("controller_templates");
 		DBCursor cursor = coll.find(query, removeId);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
@@ -112,12 +112,12 @@ public class MongoDBController {
 		return arrBuild.build();
 	}
 
-	public JsonArray deleteTemplate(String project, String imageName) {
+	public JsonArray deleteContTemplate(String project, String imageName) {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
 		query.put("desiredState.podTemplate.labels.image", imageName);
 		query.put("desiredState.podTemplate.labels.project", project);
-		DBCollection coll = db.getCollection("templates");
+		DBCollection coll = db.getCollection("controller_templates");
 		DBCursor cursor = coll.find(query, removeId);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
@@ -132,11 +132,11 @@ public class MongoDBController {
 		return arrBuild.build();
 	}
 
-	public JsonArray getAllTemplates(String project) {
+	public JsonArray getAllContTemplates(String project) {
 		BasicDBObject query = new BasicDBObject();
 		if (!project.equals("all")) query.put("desiredState.podTemplate.labels.project", project);
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
-		DBCollection coll = db.getCollection("templates");
+		DBCollection coll = db.getCollection("controller_templates");
 		DBCursor cursor = coll.find(query, removeId);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
@@ -152,12 +152,12 @@ public class MongoDBController {
 		return arrBuild.build();
 	}
 
-	public JsonArray addEnv(String project, String template) {
+	public JsonArray addController(String project, String template) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
 		LOG.debug("Template: " + template);
 		
 		doc.append("_id", doc.get("id"));
-		DBCollection coll = db.getCollection("environments");
+		DBCollection coll = db.getCollection("controllers");
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", doc.get("_id"));
 		query.put("desiredState.podTemplate.labels.project", project);
@@ -167,13 +167,13 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		if (doc.containsValue("Status")) return arrBuild.add(json).build();
 		if (cursor.count() > 0) {
-			LOG.info("Environment Exists");
+			LOG.info("Controller Exists");
 			json = Json
 					.createReader(new StringReader(cursor.next().toString()))
 					.readObject();
 			return arrBuild.add(json).build();
 		} else {
-			LOG.info("Inserted: " + coll.insert(doc).toString());
+			LOG.info("Inserted Controller: " + coll.insert(doc).toString());
 			json = Json
 					.createReader(new StringReader(doc.toString()))
 					.readObject();
@@ -288,12 +288,95 @@ public class MongoDBController {
 		}
 		return arrBuild.build();
 	}
+	
+	public JsonArray updateStackTemp(String project, String template) {
+		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
+		doc.append("_id", doc.get("id"));
+		DBCollection coll = db.getCollection("stack_templates");
+		BasicDBObject query = new BasicDBObject();
+		//LOG.debug("ID: " + doc.getString("id"));
+		query.put("_id", doc.get("id"));
+		//query.put("labels.project", project);
+		DBCursor cursor = coll.find(query);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		if (cursor.count() > 0) {
+			LOG.info("Stack found and updated: "
+					+ coll.update(query, doc, true, false));
+			json = Json.createReader(new StringReader(template)).readObject();
+			return arrBuild.add(json).build();
+		} else {
+			LOG.info("Stack inserted: " + coll.insert(doc));
+			json = Json.createReader(new StringReader(template)).readObject();
+			return arrBuild.add(json).build();
+		}
+	}
+	
+	public JsonArray getStackTemp(String project, String id) {
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		query.put("id", id);
+		//query.put("desiredState.podTemplate.labels.project", project);
+		DBCollection coll = db.getCollection("stack_template");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Stack: " + found.toString());
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
+	
+	public JsonArray deleteStackTemp(String project, String id) {
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		query.put("id", id);
+		//query.put("desiredState.podTemplate.labels.project", project);
+		DBCollection coll = db.getCollection("stack_template");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Stack removed: " + coll.remove(found));
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
+	
+	public JsonArray getAllStackTemps(String project) {
+		BasicDBObject query = new BasicDBObject();
+		//query.put("desiredState.podTemplate.labels.project", project); NEED TO IMPLEMENT PROJECT BASED
+		BasicDBObject removeId = new BasicDBObject("_id", 0);
+		DBCollection coll = db.getCollection("stack_templates");
+		DBCursor cursor = coll.find(query, removeId);
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonObject json = objBuild.build();
+		while (cursor.hasNext()) {
+			BasicDBObject found = (BasicDBObject) cursor.next();
+			LOG.info("Found Stack: " + found.toString());
+			json = Json.createReader(new StringReader(found.toString()))
+					.readObject();
+			arrBuild.add(json);
+		}
+		return arrBuild.build();
+	}
 
-	public JsonArray updateEnv(String project, String template) {
+	public JsonArray updateController(String project, String template) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
 		//LOG.debug(template);
 		doc.append("_id", doc.get("id"));
-		DBCollection coll = db.getCollection("environments");
+		DBCollection coll = db.getCollection("controllers");
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", doc.get("id"));
 		//query.put("desiredState.podTemplate.labels.project", project);
@@ -302,18 +385,18 @@ public class MongoDBController {
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonObject json = objBuild.build();
 		if (cursor.count() > 0) {
-			LOG.info("Environment found and updated: "
+			LOG.info("Controller found and updated: "
 					+ coll.update(query, doc, true, false));
 			json = Json.createReader(new StringReader(template)).readObject();
 			return arrBuild.add(json).build();
 		} else {
-			LOG.info("Environment inserted: " + coll.insert(doc));
+			LOG.info("Controller inserted: " + coll.insert(doc));
 			json = Json.createReader(new StringReader(template)).readObject();
 			return arrBuild.add(json).build();
 		}
 	}
 
-	public JsonArray getEnv(String project, String id) {
+	public JsonArray getController(String project, String id) {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
 		query.put("id", id);
@@ -325,7 +408,7 @@ public class MongoDBController {
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.info("Found Environment: " + found.toString());
+			LOG.info("Found Controller: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -353,19 +436,19 @@ public class MongoDBController {
 		return arrBuild.build();
 	}
 
-	public JsonArray deleteEnv(String project, String id) {
+	public JsonArray deleteController(String project, String id) {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
 		query.put("id", id);
 		//query.put("desiredState.podTemplate.labels.project", project);
-		DBCollection coll = db.getCollection("environments");
+		DBCollection coll = db.getCollection("controllers");
 		DBCursor cursor = coll.find(query, removeId);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.info("Environment removed: " + coll.remove(found));
+			LOG.info("Controller removed: " + coll.remove(found));
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -373,19 +456,18 @@ public class MongoDBController {
 		return arrBuild.build();
 	}
 
-	public JsonArray getAllEnvs(String project) {
-		LOG.debug("PROJECT: " + project);
+	public JsonArray getAllControllers(String project) {
 		BasicDBObject query = new BasicDBObject();
 		//query.put("desiredState.podTemplate.labels.project", project); NEED TO IMPLEMENT PROJECT BASED
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
-		DBCollection coll = db.getCollection("environments");
+		DBCollection coll = db.getCollection("controllers");
 		DBCursor cursor = coll.find(query, removeId);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonObject json = objBuild.build();
 		while (cursor.hasNext()) {
 			BasicDBObject found = (BasicDBObject) cursor.next();
-			LOG.info("Found Environment: " + found.toString());
+			LOG.info("Found Controller: " + found.toString());
 			json = Json.createReader(new StringReader(found.toString()))
 					.readObject();
 			arrBuild.add(json);
@@ -829,43 +911,5 @@ public class MongoDBController {
 		}
 		return arrBuild.build();
 	}
-	
-	/*
-	 * public static void main(String[] args) {
-	 * 
-	 * MongoDBController mo = new MongoDBController(); String temp =
-	 * "{\"id\":\"jboss-pod\",\"kind\":\"Pod\",\"apiVersion\":\"v1beta1\"," +
-	 * "\"desiredState\":{\"manifest\":{\"version\":\"v1beta1\",\"id\":\"jboss-pod\","
-	 * + "\"containers\":[{\"name\":\"jboss-wildfly\",\"image\":\"jboss-image\""
-	 * + ",\"ports\":[{\"containerPort\":8080,\"hostPort\":31081}," +
-	 * "{\"containerPort\":9990,\"hostPort\":31090}]}]}},\"labels\":" +
-	 * "{\"name\":\"jboss\",\"type\":\"jboss-pod\", \"image\":\"jboss-image\"}}"
-	 * ; // mo.addTemplate(temp, "jboss-image"); //
-	 * mo.getTemplate("jboss-image"); String env =
-	 * "{ \"kind\": \"Pod\", \"id\": \"apache-pod\", \"uid\": " +
-	 * "\"d977ec0f-bb82-11e4-a5e9-fa163e737490\", \"creationTimestamp\": " +
-	 * "\"2015-02-23T17:38:59Z\", \"selfLink\": " +
-	 * "\"/api/v1beta1/pods/apache-pod?namespace=default\", \"resourceVersion\": 50186, "
-	 * + "\"apiVersion\": \"v1beta1\", \"namespace\": \"default\", " +
-	 * "\"labels\": { \"app\": \"apache\", \"image\": \"sewatech/modcluster\", "
-	 * +
-	 * "\"name\": \"apache-httpd\", \"os\": \"ubuntu\", \"type\": \"apache-pod\" }, "
-	 * +
-	 * "\"desiredState\": { \"manifest\": { \"version\": \"v1beta2\", \"id\": \"\", "
-	 * + "\"volumes\": null, \"containers\": [ { \"name\": \"apache-httpd\"," +
-	 * " \"image\": \"sewatech/modcluster\", \"ports\": [ { \"hostPort\": 31080,"
-	 * +
-	 * " \"containerPort\": 80, \"protocol\": \"TCP\" } ], \"imagePullPolicy\": \"\" } ], "
-	 * +
-	 * "\"restartPolicy\": { \"always\": {} }, \"dnsPolicy\": \"ClusterFirst\" } },"
-	 * + " \"currentState\": { \"manifest\": { \"version\": \"\", \"id\": \"\","
-	 * + " \"volumes\": null, \"containers\": null, \"restartPolicy\": {} }, " +
-	 * "\"status\": \"Waiting\" } }"; //mo.addEnv(env);
-	 * //System.out.println(mo.getImage("ubuntu", "wildfly"));
-	 * System.out.println(mo.getAllImages()); // KubernetesController test = new
-	 * KubernetesController();
-	 * 
-	 * }
-	 */
 
 }

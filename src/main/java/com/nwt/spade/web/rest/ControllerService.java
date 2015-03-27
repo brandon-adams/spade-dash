@@ -20,14 +20,14 @@ import com.nwt.spade.controllers.APIController.API;
 @Service
 @RestController
 @RequestMapping("/spade/api")
-public class EnvironmentService {
+public class ControllerService {
 
 	private APIController apiController;
 	private static final Logger LOG = LoggerFactory
-			.getLogger(EnvironmentService.class);
+			.getLogger(ControllerService.class);
 
 	@Autowired
-	public EnvironmentService(APIController api) {
+	public ControllerService(APIController api) {
 		apiController = api;
 	}
 
@@ -35,14 +35,14 @@ public class EnvironmentService {
 	public @ResponseBody ResponseEntity<String> addEnv(
 			@PathVariable String project, @RequestBody String payload) {
 		return new ResponseEntity<String>(apiController.addEnv(project, payload),
-				HttpStatus.CREATED);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/env/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> getEnv(
 			@PathVariable String project, @PathVariable String id) {
 		return new ResponseEntity<String>(apiController.getEnv(project, id),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/env/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -56,7 +56,7 @@ public class EnvironmentService {
 	public @ResponseBody ResponseEntity<String> listAllEnvs(
 			@PathVariable String project) {
 		return new ResponseEntity<String>(apiController.listAllEnvs(project),
-				HttpStatus.FOUND);
+				HttpStatus.OK);
 	}
 
 }
