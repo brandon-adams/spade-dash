@@ -36,7 +36,7 @@ public class TemplateService {
 			@PathVariable String project, @PathVariable String os,
 			@PathVariable String app) {
 		return new ResponseEntity<String>(apiController.getTemplate(project, os, app),
-				HttpStatus.OK);
+				HttpStatus.FOUND);
 	}
 
 	@RequestMapping(value = "/{project}/templates/{os}/{app}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,7 +51,7 @@ public class TemplateService {
 	public @ResponseBody ResponseEntity<String> listAllTemplates(
 			@PathVariable String project) {
 		return new ResponseEntity<String>(apiController.listAllTemplates(project),
-				HttpStatus.OK);
+				HttpStatus.FOUND);
 	}
 
 }

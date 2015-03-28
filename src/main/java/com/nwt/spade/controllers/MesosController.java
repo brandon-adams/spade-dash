@@ -165,7 +165,7 @@ public class MesosController {
 													.getString(
 															"k8s_mesosphere_io/taskId");
 											String podName = ((JsonObject) pod)
-													.getJsonObject("labels").getString("name");
+													.getString("id");
 											if (id.equalsIgnoreCase(sid))
 												taskBuild.add("podName",
 														podName);

@@ -96,6 +96,12 @@ public class SPADEService {
 				HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/api/{project}/stacks", method = RequestMethod.POST, produces = MediaType.TEXT_HTML_VALUE)
+	public @ResponseBody ResponseEntity<String> createStack(@RequestBody String template) {
+		return new ResponseEntity<String>(apiController.addStack("demo", template),
+				HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/api/stacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllStacks() {
 		return new ResponseEntity<String>(apiController.listAllStacks("all"),

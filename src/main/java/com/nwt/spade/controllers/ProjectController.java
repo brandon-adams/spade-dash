@@ -87,7 +87,7 @@ public class ProjectController {
 			}
 			
 			//LOG.debug("PROJECT: " + ((JsonObject)proj).getString("name"));
-			JsonArray envArr = db.getAllControllers(((JsonObject)proj).getString("name"));
+			JsonArray envArr = db.getAllEnvs(((JsonObject)proj).getString("name"));
 			JsonArrayBuilder tmp = Json.createArrayBuilder();
 			for(JsonValue env: envArr){
 				//LOG.debug("ENV: " + ((JsonObject)env).getString("id"));

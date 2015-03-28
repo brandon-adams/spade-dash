@@ -40,7 +40,7 @@ public class UserService {
 	public @ResponseBody ResponseEntity<String> getUser(
 			@PathVariable String username) {
 		return new ResponseEntity<String>(apiController.getUser(username),
-				HttpStatus.OK);
+				HttpStatus.FOUND);
 	}
 
 	@RequestMapping(value = "/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)

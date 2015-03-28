@@ -80,62 +80,65 @@ public class KubernetesController {
 		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
 	}
 
-	public JsonArray createStack(String project, String template) {
-		
+	public void createTemplate(String project, String imageName, String os,
+			String app) {
+
 	}
 
-	public JsonArray createEnv(String stack, String name, String project, String imageName,
+	public JsonArray createEnv(String name, String project, String imageName,
 			String os, String app, int replicas)
 			throws KubernetesOperationException {
 		String payload = null;
-		
+		// Pod pod = new Pod();PodState ps = new PodState();
+		// ContainerManifest cm = new ContainerManifest();
+		// Container c = new Container();
 		switch (imageName) {
 		case "sewatech/modcluster":
-			payload = createApacheJSON(stack, name, project, imageName, os, app,
+			payload = createApacheJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:nginx-ubuntu":
-			payload = createNginxJSON(stack, name, project, imageName, os, app,
+			payload = createNginxJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:wildfly-ubuntu":
-			payload = createJbossJSON(stack, name, project, imageName, os, app,
+			payload = createJbossJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:tomcat-ubuntu":
-			payload = createTomcatJSON(stack, name, project, imageName, os, app,
+			payload = createTomcatJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "partlab/ubuntu-mongodb":
-			payload = createMongoDBJSON(stack, name, project, imageName, os, app,
+			payload = createMongoDBJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:mysql-ubuntu":
-			payload = createMySQLJSON(stack, name, project, imageName, os, app,
+			payload = createMySQLJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:apache-fedora":
-			payload = createApacheJSON(stack, name, project, imageName, os, app,
+			payload = createApacheJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:nginx-fedora":
-			payload = createNginxJSON(stack, name, project, imageName, os, app,
+			payload = createNginxJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:cluster":
-			payload = createJbossJSON(stack, name, project, imageName, os, app,
+			payload = createJbossJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:tomcat-fedora":
-			payload = createTomcatJSON(stack, name, project, imageName, os, app,
+			payload = createTomcatJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "bradams/devops:mongodb-fedora":
-			payload = createMongoDBJSON(stack, name, project, imageName, os, app,
+			payload = createMongoDBJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		case "jdeathe/centos-ssh-mysql":
-			payload = createMySQLJSON(stack, name, project, imageName, os, app,
+			payload = createMySQLJSON(name, project, imageName, os, app,
 					replicas);
 			break;
 		default:
@@ -143,7 +146,7 @@ public class KubernetesController {
 		}
 
 		// payload = db.getTemplate(imageName).getString("0");
-		JsonArray added = db.addContTemplate(project, payload, imageName);
+		JsonArray added = db.addTemplate(project, payload, imageName);
 		LOG.debug("Added template: " + added.getJsonObject(0).toString());
 
 		String jsonString = kubeApiRequest("POST", endpoint
@@ -151,12 +154,12 @@ public class KubernetesController {
 
 		LOG.debug("Payload: " + payload);
 		LOG.debug("Return from Kube: " + jsonString);
-		return db.addController(project, jsonString);
+		return db.addEnv(project, jsonString);
 	}
 
 	public JsonObject updateEnv(String project, String id)
 			throws KubernetesOperationException {
-		JsonArray env = db.getController(project, id);
+		JsonArray env = db.getEnv(project, id);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
@@ -167,8 +170,11 @@ public class KubernetesController {
 		String jsonString = kubeApiRequest("GET", selfLink, null);
 
 		try {
-			JsonArray val = db.updateController(project, jsonString.toString());
+			JsonArray val = db.updateEnv(project, jsonString.toString());
 			objBuild.add("items", val);
+			// LOG.debug("STATUS: "
+			// + val.getJsonObject(0).getJsonObject("currentState")
+			// .getString("status"));
 		} catch (NullPointerException ne) {
 			ne.printStackTrace();
 		} catch (Exception e) {
@@ -193,7 +199,7 @@ public class KubernetesController {
 			for (JsonValue jval : envList) {
 				// String proj = ((JsonObject)
 				// jval).getJsonObject("labels").getString("project");
-				JsonArray val = db.updateController(project, jval.toString());
+				JsonArray val = db.updateEnv(project, jval.toString());
 				objBuild.add("items", val);
 				LOG.info("Synched repl cont -> env with KubeApi: " + val);
 			}
@@ -216,7 +222,7 @@ public class KubernetesController {
 			LOG.info("No pods running on the master");
 		}
 
-		JsonArray dbEnvs = db.getAllControllers(project);
+		JsonArray dbEnvs = db.getAllEnvs(project);
 		if (!dbEnvs.isEmpty()) {
 			for (JsonValue jval : dbEnvs) {
 				// if(((JsonObject)jval).getString("kind").equals("Status"))
@@ -233,7 +239,7 @@ public class KubernetesController {
 				}
 				if (!remove) {
 					LOG.debug("Deleting leftover env: "
-							+ db.deleteController(project,
+							+ db.deleteEnv(project,
 									((JsonObject) jval).getString("id")));
 				}
 			}
@@ -267,27 +273,47 @@ public class KubernetesController {
 
 	public JsonArray getTemplate(String project, String imageName) {
 
-		return db.getContTemplate(project, imageName);
+		return db.getTemplate(project, imageName);
 	}
 
 	public JsonArray deleteTemplate(String project, String imageName) {
 
-		return db.deleteContTemplate(project, imageName);
+		return db.deleteTemplate(project, imageName);
 	}
 
 	public JsonArray getAllTemplates(String project) {
 
-		return db.getAllContTemplates(project);
+		return db.getAllTemplates(project);
+	}
+	
+	public JsonArray createStack(String project, String template) {
+
+		return db.updateStack(project, template);
+	}
+	
+	public JsonArray getStack(String project, String id) {
+
+		return db.getStack(project, id);
+	}
+
+	public JsonArray deleteStack(String project, String id) {
+
+		return db.deleteStack(project, id);
+	}
+
+	public JsonArray getAllStacks(String project) {
+
+		return db.getAllStacks(project);
 	}
 
 	public JsonArray getEnv(String project, String id) {
 
-		return db.getController(project, id);
+		return db.getEnv(project, id);
 	}
 
 	public JsonArray deleteEnv(String project, String id)
 			throws KubernetesOperationException {
-		JsonObject env = db.getController(project, id).getJsonObject(0);
+		JsonObject env = db.getEnv(project, id).getJsonObject(0);
 		String selfLink = env.getString("selfLink");
 		String selector = env.getJsonObject("desiredState")
 				.getJsonObject("replicaSelector").getString("type");
@@ -305,12 +331,12 @@ public class KubernetesController {
 		String result = kubeApiRequest("DELETE", selfLink, null);
 		// Need to check that the element is actually deleted in the response,
 		// otherwise throw Exception
-		return db.deleteController(project, id);
+		return db.deleteEnv(project, id);
 	}
 
 	public JsonArray getAllEnvs(String project) {
 
-		return db.getAllControllers(project);
+		return db.getAllEnvs(project);
 	}
 
 	public JsonArray getAllPods(String project) {
@@ -318,22 +344,20 @@ public class KubernetesController {
 		return db.getAllPods(project);
 	}
 
-	private String createMongoDBJSON(String stack, String name, String project,
+	private String createMongoDBJSON(String name, String project,
 			String imageName, String os, String app, int replicas) {
 		JsonObject mongoPod = Json
 				.createObjectBuilder()
-				.add("id", stack+"-"+name)
+				.add("id", name)
 				.add("kind", "ReplicationController")
-				.add("apiVersion", "v1beta2")
-				.add("labels", Json.createObjectBuilder()
-						.add("name", stack+"-"+name)
-						.add("stack", stack))
+				.add("apiVersion", "v1beta1")
+				.add("labels", Json.createObjectBuilder().add("name", name))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
-										Json.createObjectBuilder()
-										.add("type", stack+"-"+name+"-mongodb-pod"))
+										Json.createObjectBuilder().add("type",
+												"mongodb-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -341,15 +365,15 @@ public class KubernetesController {
 																.add("manifest",
 																		Json.createObjectBuilder()
 																				.add("version",
-																						"v1beta2")
+																						"v1beta1")
 																				.add("id",
-																						stack+"-"+name+"-mongodb-pod")
+																						"mongodb-pod")
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-mongodb")
+																												"mongodb")
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -365,10 +389,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-mongodb")
+																		"mongodb")
 																.add("type",
-																		stack+"-"+name+"-mongodb-pod")
-																.add("stack", stack)
+																		"mongodb-pod")
 																.add("image",
 																		imageName)
 																.add("os", os)
@@ -379,23 +402,20 @@ public class KubernetesController {
 		return mongoPod.toString();
 	}
 
-	private String createMySQLJSON(String stack, String name, String project,
+	private String createMySQLJSON(String name, String project,
 			String imageName, String os, String app, int replicas) {
 		JsonObject mysqlPod = Json
 				.createObjectBuilder()
-				.add("id", stack+"-"+name)
+				.add("id", name)
 				.add("kind", "ReplicationController")
-				.add("apiVersion", "v1beta2")
-				.add("labels", Json.createObjectBuilder()
-						.add("name", stack+"-"+name)
-						.add("stack", stack))
+				.add("apiVersion", "v1beta1")
+				.add("labels", Json.createObjectBuilder().add("name", name))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
-										Json.createObjectBuilder()
-										.add("type",
-												stack+"-"+name+"-mysql-pod"))
+										Json.createObjectBuilder().add("type",
+												"mysql-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -403,15 +423,15 @@ public class KubernetesController {
 																.add("manifest",
 																		Json.createObjectBuilder()
 																				.add("version",
-																						"v1beta2")
+																						"v1beta1")
 																				.add("id",
-																						stack+"-"+name+"-mysql-pod")
+																						"mysql-pod")
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-mysql")
+																												"mysql")
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -427,10 +447,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-mysql")
+																		"mysql")
 																.add("type",
-																		stack+"-"+name+"-mysql-pod")
-																.add("stack", stack)
+																		"mysql-pod")
 																.add("image",
 																		imageName)
 																.add("os", os)
@@ -441,23 +460,20 @@ public class KubernetesController {
 		return mysqlPod.toString();
 	}
 
-	private String createJbossJSON(String stack, String name, String project,
+	private String createJbossJSON(String name, String project,
 			String imageName, String os, String app, int replicas) {
 		JsonObject jbossPod = Json
 				.createObjectBuilder()
-				.add("id", stack+"-"+name)
+				.add("id", name)
 				.add("kind", "ReplicationController")
-				.add("apiVersion", "v1beta2")
-				.add("labels", Json.createObjectBuilder()
-						.add("name", stack+"-"+name)
-						.add("stack", stack))
+				.add("apiVersion", "v1beta1")
+				.add("labels", Json.createObjectBuilder().add("name", name))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
-										Json.createObjectBuilder()
-										.add("type",
-												stack+"-"+name+"-jboss-pod"))
+										Json.createObjectBuilder().add("type",
+												"jboss-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -465,15 +481,15 @@ public class KubernetesController {
 																.add("manifest",
 																		Json.createObjectBuilder()
 																				.add("version",
-																						"v1beta2")
+																						"v1beta1")
 																				.add("id",
-																						stack+"-"+name+"-jboss-pod")
+																						"jboss-pod")
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-jboss")
+																												"jboss")
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -495,10 +511,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-jboss")
+																		"jboss")
 																.add("type",
-																		stack+"-"+name+"-jboss-pod")
-																.add("stack", stack)
+																		"jboss-pod")
 																.add("image",
 																		imageName)
 																.add("os", os)
@@ -509,23 +524,20 @@ public class KubernetesController {
 		return jbossPod.toString();
 	}
 
-	private String createTomcatJSON(String stack, String name, String project,
+	private String createTomcatJSON(String name, String project,
 			String imageName, String os, String app, int replicas) {
 		JsonObject tomcatPod = Json
 				.createObjectBuilder()
-				.add("id", stack+"-"+name)
+				.add("id", name)
 				.add("kind", "ReplicationController")
-				.add("apiVersion", "v1beta2")
-				.add("labels", Json.createObjectBuilder()
-						.add("name", stack+"-"+name)
-						.add("stack", stack))
+				.add("apiVersion", "v1beta1")
+				.add("labels", Json.createObjectBuilder().add("name", name))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
-										Json.createObjectBuilder()
-										.add("type",
-												stack+"-"+name+"-tomcat-pod"))
+										Json.createObjectBuilder().add("type",
+												"tomcat-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -533,15 +545,15 @@ public class KubernetesController {
 																.add("manifest",
 																		Json.createObjectBuilder()
 																				.add("version",
-																						"v1beta2")
+																						"v1beta1")
 																				.add("id",
-																						stack+"-"+name+"-tomcat-pod")
+																						"tomcat-pod")
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-tomcat")
+																												"tomcat")
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -557,10 +569,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-tomcat")
+																		"tomcat")
 																.add("type",
-																		stack+"-"+name+"-tomcat-pod")
-																.add("stack", stack)
+																		"tomcat-pod")
 																.add("image",
 																		imageName)
 																.add("os", os)
@@ -571,23 +582,20 @@ public class KubernetesController {
 		return tomcatPod.toString();
 	}
 
-	private String createApacheJSON(String stack, String name, String project,
+	private String createApacheJSON(String name, String project,
 			String imageName, String os, String app, int replicas) {
 		JsonObject apachePod = Json
 				.createObjectBuilder()
-				.add("id", stack+"-"+name)
+				.add("id", name)
 				.add("kind", "ReplicationController")
-				.add("apiVersion", "v1beta2")
-				.add("labels", Json.createObjectBuilder()
-						.add("name", stack+"-"+name)
-						.add("stack", stack))
+				.add("apiVersion", "v1beta1")
+				.add("labels", Json.createObjectBuilder().add("name", name))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
-										Json.createObjectBuilder()
-										.add("type",
-												stack+"-"+name+"-apache-pod"))
+										Json.createObjectBuilder().add("type",
+												"apache-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -595,15 +603,15 @@ public class KubernetesController {
 																.add("manifest",
 																		Json.createObjectBuilder()
 																				.add("version",
-																						"v1beta2")
+																						"v1beta1")
 																				.add("id",
-																						stack+"-"+name+"-apache-pod")
+																						"apache-pod")
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-apache")
+																												"apache")
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -619,10 +627,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-apache")
+																		"apache")
 																.add("type",
-																		stack+"-"+name+"-apache-pod")
-																.add("stack", stack)
+																		"apache-pod")
 																.add("image",
 																		imageName)
 																.add("os", os)
@@ -633,23 +640,20 @@ public class KubernetesController {
 		return apachePod.toString();
 	}
 
-	private String createNginxJSON(String stack, String name, String project,
+	private String createNginxJSON(String name, String project,
 			String imageName, String os, String app, int replicas) {
 		JsonObject nginxPod = Json
 				.createObjectBuilder()
-				.add("id", stack+"-"+name)
+				.add("id", name)
 				.add("kind", "ReplicationController")
-				.add("apiVersion", "v1beta2")
-				.add("labels", Json.createObjectBuilder()
-						.add("name", stack+"-"+name)
-						.add("stack", stack))
+				.add("apiVersion", "v1beta1")
+				.add("labels", Json.createObjectBuilder().add("name", name))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
-										Json.createObjectBuilder()
-										.add("type",
-												stack+"-"+name+"-nginx-pod"))
+										Json.createObjectBuilder().add("type",
+												"nginx-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -657,15 +661,15 @@ public class KubernetesController {
 																.add("manifest",
 																		Json.createObjectBuilder()
 																				.add("version",
-																						"v1beta2")
+																						"v1beta1")
 																				.add("id",
-																						stack+"-"+name+"-nginx-pod")
+																						"nginx-pod")
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-nginx")
+																												"nginx")
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -681,10 +685,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-nginx")
+																		"nginx")
 																.add("type",
-																		stack+"-"+name+"-nginx-pod")
-																.add("stack", stack)
+																		"nginx-pod")
 																.add("image",
 																		imageName)
 																.add("os", os)

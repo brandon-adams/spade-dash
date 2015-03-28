@@ -34,7 +34,7 @@ public class ProjectService {
 	public @ResponseBody ResponseEntity<String> addProject(
 			@RequestBody String payload) {
 		return new ResponseEntity<String>(apiController.addProject(payload),
-				HttpStatus.OK);
+				HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/{project}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,6 +48,6 @@ public class ProjectService {
 	public @ResponseBody ResponseEntity<String> getProject(
 			@PathVariable String project) {
 		return new ResponseEntity<String>(apiController.getProject(project),
-				HttpStatus.OK);
+				HttpStatus.FOUND);
 	}
 }
