@@ -87,7 +87,7 @@ public class APIController {
 		String os = jsonInput.getString("os").toLowerCase();
 		String app = jsonInput.getString("app").toLowerCase();
 		String name = jsonInput.getString("name").toLowerCase();
-		String stack = jsonInput.getString("stack").toLowerCase();
+		String stack = (jsonInput.getString("stack").toLowerCase()==null ? jsonInput.getString("stack").toLowerCase() : "none");
 		int replicas = jsonInput.getInt("replicas");
 		/*
 		 * try { System.out.println("Image used: " + template.getImageName());

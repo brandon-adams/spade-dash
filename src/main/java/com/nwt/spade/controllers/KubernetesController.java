@@ -327,13 +327,14 @@ public class KubernetesController {
 				.add("apiVersion", "v1beta2")
 				.add("labels", Json.createObjectBuilder()
 						.add("name", stack+"-"+name)
-						.add("stack", stack))
+						.add("stack", stack)
+						.add("project", project))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
 										Json.createObjectBuilder()
-										.add("type", stack+"-"+name+"-mongodb-pod"))
+										.add("type", stack+"-"+name+"-"+app+"-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -343,13 +344,13 @@ public class KubernetesController {
 																				.add("version",
 																						"v1beta2")
 																				.add("id",
-																						stack+"-"+name+"-mongodb-pod")
+																						stack+"-"+name+"-"+app)
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-mongodb")
+																												stack+"-"+name+"-"+app)
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -365,9 +366,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-mongodb")
+																		stack+"-"+name+"-"+app)
 																.add("type",
-																		stack+"-"+name+"-mongodb-pod")
+																		stack+"-"+name+"-"+app+"-pod")
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -388,14 +389,15 @@ public class KubernetesController {
 				.add("apiVersion", "v1beta2")
 				.add("labels", Json.createObjectBuilder()
 						.add("name", stack+"-"+name)
-						.add("stack", stack))
+						.add("stack", stack)
+						.add("project", project))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
 										Json.createObjectBuilder()
 										.add("type",
-												stack+"-"+name+"-mysql-pod"))
+												stack+"-"+name+"-"+app+"-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -405,13 +407,13 @@ public class KubernetesController {
 																				.add("version",
 																						"v1beta2")
 																				.add("id",
-																						stack+"-"+name+"-mysql-pod")
+																						stack+"-"+name+"-"+app)
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-mysql")
+																												stack+"-"+name+"-"+app)
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -427,9 +429,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-mysql")
+																		stack+"-"+name+"-"+app)
 																.add("type",
-																		stack+"-"+name+"-mysql-pod")
+																		stack+"-"+name+"-"+app+"-pod")
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -450,14 +452,15 @@ public class KubernetesController {
 				.add("apiVersion", "v1beta2")
 				.add("labels", Json.createObjectBuilder()
 						.add("name", stack+"-"+name)
-						.add("stack", stack))
+						.add("stack", stack)
+						.add("project", project))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
 										Json.createObjectBuilder()
 										.add("type",
-												stack+"-"+name+"-jboss-pod"))
+												stack+"-"+name+"-"+app+"-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -467,13 +470,13 @@ public class KubernetesController {
 																				.add("version",
 																						"v1beta2")
 																				.add("id",
-																						stack+"-"+name+"-jboss-pod")
+																						stack+"-"+name+"-"+app)
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-jboss")
+																												stack+"-"+name+"-"+app)
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -495,9 +498,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-jboss")
+																		stack+"-"+name+"-"+app)
 																.add("type",
-																		stack+"-"+name+"-jboss-pod")
+																		stack+"-"+name+"-"+app+"-pod")
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -518,14 +521,15 @@ public class KubernetesController {
 				.add("apiVersion", "v1beta2")
 				.add("labels", Json.createObjectBuilder()
 						.add("name", stack+"-"+name)
-						.add("stack", stack))
+						.add("stack", stack)
+						.add("project", project))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
 										Json.createObjectBuilder()
 										.add("type",
-												stack+"-"+name+"-tomcat-pod"))
+												stack+"-"+name+"-"+app+"-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -535,13 +539,13 @@ public class KubernetesController {
 																				.add("version",
 																						"v1beta2")
 																				.add("id",
-																						stack+"-"+name+"-tomcat-pod")
+																						stack+"-"+name+"-"+app)
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-tomcat")
+																												stack+"-"+name+"-"+app)
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -557,9 +561,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-tomcat")
+																		stack+"-"+name+"-"+app)
 																.add("type",
-																		stack+"-"+name+"-tomcat-pod")
+																		stack+"-"+name+"-"+app+"-pod")
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -580,14 +584,15 @@ public class KubernetesController {
 				.add("apiVersion", "v1beta2")
 				.add("labels", Json.createObjectBuilder()
 						.add("name", stack+"-"+name)
-						.add("stack", stack))
+						.add("stack", stack)
+						.add("project", project))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
 										Json.createObjectBuilder()
 										.add("type",
-												stack+"-"+name+"-apache-pod"))
+												stack+"-"+name+"-"+app+"-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -597,13 +602,13 @@ public class KubernetesController {
 																				.add("version",
 																						"v1beta2")
 																				.add("id",
-																						stack+"-"+name+"-apache-pod")
+																						stack+"-"+name+"-"+app)
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-apache")
+																												stack+"-"+name+"-"+app)
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -619,9 +624,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-apache")
+																		stack+"-"+name+"-"+app)
 																.add("type",
-																		stack+"-"+name+"-apache-pod")
+																		stack+"-"+name+"-"+app+"-pod")
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -642,14 +647,15 @@ public class KubernetesController {
 				.add("apiVersion", "v1beta2")
 				.add("labels", Json.createObjectBuilder()
 						.add("name", stack+"-"+name)
-						.add("stack", stack))
+						.add("stack", stack)
+						.add("project", project))
 				.add("desiredState",
 						Json.createObjectBuilder()
 								.add("replicas", replicas)
 								.add("replicaSelector",
 										Json.createObjectBuilder()
 										.add("type",
-												stack+"-"+name+"-nginx-pod"))
+												stack+"-"+name+"-"+app+"-pod"))
 								.add("podTemplate",
 										Json.createObjectBuilder()
 												.add("desiredState",
@@ -659,13 +665,13 @@ public class KubernetesController {
 																				.add("version",
 																						"v1beta2")
 																				.add("id",
-																						stack+"-"+name+"-nginx-pod")
+																						stack+"-"+name+"-"+app)
 																				.add("containers",
 																						Json.createArrayBuilder()
 																								.add(Json
 																										.createObjectBuilder()
 																										.add("name",
-																												stack+"-"+name+"-nginx")
+																												stack+"-"+name+"-"+app)
 																										.add("image",
 																												imageName)
 																										.add("cpu",
@@ -681,9 +687,9 @@ public class KubernetesController {
 												.add("labels",
 														Json.createObjectBuilder()
 																.add("name",
-																		stack+"-"+name+"-nginx")
+																		stack+"-"+name+"-"+app)
 																.add("type",
-																		stack+"-"+name+"-nginx-pod")
+																		stack+"-"+name+"-"+app+"-pod")
 																.add("stack", stack)
 																.add("image",
 																		imageName)

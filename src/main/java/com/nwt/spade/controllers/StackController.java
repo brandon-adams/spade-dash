@@ -23,7 +23,6 @@ public class StackController {
 
 	private MongoDBController db;
 	private KubernetesController kc;
-	private DockerController dc;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(StackController.class);
@@ -49,12 +48,12 @@ public class StackController {
 			String os = ((JsonObject) cont).getString("os").toLowerCase();
 			String app = ((JsonObject) cont).getString("app").toLowerCase();
 			String name = ((JsonObject) cont).getString("name").toLowerCase();
-			String stack = ((JsonObject) cont).getString("stack").toLowerCase();
+			//String stack = ((JsonObject) cont).getString("stack").toLowerCase();
 			int replicas = ((JsonObject) cont).getInt("replicas");
-			String imageName = dc.getImage(project, os, app)
-					.getJsonArray("items").getJsonObject(0).getString("image");
+			String imageName = db.getImage(project, os, app)
+					.getJsonObject(0).getString("image");
 			arrBuild.add(kc
-					.createEnv(stack, name, project, imageName, os, app,
+					.createEnv(stackName, name, project, imageName, os, app,
 							replicas).getJsonObject(0).getString("id"));
 		}
 
@@ -117,8 +116,12 @@ public class StackController {
 				}
 			}
 			objBuild.add("pods", arrBuild.build());
+			
 			for (JsonValue cont : dbConts){
 				String ownStack = ((JsonObject)cont).getJsonObject("labels").getString("stack");
+				if (ownStack.equals(((JsonObject)stack).getString("id"))){
+					arrBuild.add(((JsonObject)cont).getJsonObject("labels").getString("name"));
+				}
 			}
 			objBuild.add("controllers", arrBuild.build());
 		}
