@@ -369,6 +369,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-"+app)
 																.add("type",
 																		stack+"-"+name+"-"+app+"-pod")
+																.add("controller", stack+"-"+name)
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -432,6 +433,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-"+app)
 																.add("type",
 																		stack+"-"+name+"-"+app+"-pod")
+																.add("controller", stack+"-"+name)
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -501,6 +503,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-"+app)
 																.add("type",
 																		stack+"-"+name+"-"+app+"-pod")
+																.add("controller", stack+"-"+name)
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -564,6 +567,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-"+app)
 																.add("type",
 																		stack+"-"+name+"-"+app+"-pod")
+																.add("controller", stack+"-"+name)
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -627,6 +631,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-"+app)
 																.add("type",
 																		stack+"-"+name+"-"+app+"-pod")
+																.add("controller", stack+"-"+name)
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -690,6 +695,7 @@ public class KubernetesController {
 																		stack+"-"+name+"-"+app)
 																.add("type",
 																		stack+"-"+name+"-"+app+"-pod")
+																.add("controller", stack+"-"+name)
 																.add("stack", stack)
 																.add("image",
 																		imageName)
@@ -765,7 +771,6 @@ public class KubernetesController {
 		labels.put("type", template.getSelect());
 		//labels.put("image", "partlab/ubuntu-mongodb");
 		//labels.put("os", "ubuntu");
-		
 		
 		List<Container> containers = new ArrayList<>();
 		for (int i = 0; i < template.getContainers().size(); i++) {
