@@ -54,7 +54,7 @@ public class StackController {
 			String imageName = db.getImage(project, os, app).getJsonObject(0)
 					.getString("image");
 			arrBuild.add(kc
-					.createEnv(stackName, name, project, imageName, os, app,
+					.createController(stackName, name, project, imageName, os, app,
 							replicas).getJsonObject(0).getString("id"));
 		}
 
@@ -74,7 +74,7 @@ public class StackController {
 		JsonObject dbStack = db.getStack(project, id).getJsonObject(0);
 		for (JsonValue jval : dbStack.getJsonArray("controllers")) {
 			try {
-				kc.deleteEnv(project, jval.toString());
+				kc.deleteController(project, jval.toString());
 			} catch (KubernetesOperationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
