@@ -48,10 +48,11 @@ public class StackController {
 			String os = ((JsonObject) cont).getString("os").toLowerCase();
 			String app = ((JsonObject) cont).getString("app").toLowerCase();
 			String name = ((JsonObject) cont).getString("name").toLowerCase();
-			//String stack = ((JsonObject) cont).getString("stack").toLowerCase();
+			// String stack = ((JsonObject)
+			// cont).getString("stack").toLowerCase();
 			int replicas = ((JsonObject) cont).getInt("replicas");
-			String imageName = db.getImage(project, os, app)
-					.getJsonObject(0).getString("image");
+			String imageName = db.getImage(project, os, app).getJsonObject(0)
+					.getString("image");
 			arrBuild.add(kc
 					.createEnv(stackName, name, project, imageName, os, app,
 							replicas).getJsonObject(0).getString("id"));
@@ -70,6 +71,15 @@ public class StackController {
 	}
 
 	public JsonArray deleteStack(String project, String id) {
+		JsonObject dbStack = db.getStack(project, id).getJsonObject(0);
+		for (JsonValue jval : dbStack.getJsonArray("controllers")) {
+			try {
+				kc.deleteEnv(project, jval.toString());
+			} catch (KubernetesOperationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return db.deleteStack(project, id);
 	}
@@ -99,31 +109,39 @@ public class StackController {
 		return db.getAllStackTemps(project);
 	}
 
-	public void updateAllStacks(){
+	public void updateAllStacks() {
 		JsonArray dbPods = db.getAllPods("all");
 		JsonArray dbConts = db.getAllControllers("all");
 		JsonArray dbStacks = db.getAllStacks("all");
-		
-		for (JsonValue stack : dbStacks){
+
+		for (JsonValue stack : dbStacks) {
+			LOG.info("Found Stack: " + stack);
 			JsonObjectBuilder objBuild = Json.createObjectBuilder();
-			objBuild.add("id", ((JsonObject)stack).getString("id"));
-			objBuild.add("project", ((JsonObject)stack).getString("project"));
+			objBuild.add("id", ((JsonObject) stack).getString("id"));
+			objBuild.add("project", ((JsonObject) stack).getString("project"));
 			JsonArrayBuilder arrBuild = Json.createArrayBuilder();
-			for (JsonValue pod : dbPods){
-				String ownStack = ((JsonObject)pod).getJsonObject("labels").getString("stack");
-				if (ownStack.equals(((JsonObject)stack).getString("id"))){
-					arrBuild.add(((JsonObject)pod).getJsonObject("labels").getString("name"));
+			for (JsonValue pod : dbPods) {
+				String ownStack = ((JsonObject) pod).getJsonObject("labels")
+						.getString("stack");
+				if (ownStack.equals(((JsonObject) stack).getString("id"))) {
+					arrBuild.add(((JsonObject) pod).getJsonObject("labels")
+							.getString("name"));
 				}
 			}
 			objBuild.add("pods", arrBuild.build());
-			
-			for (JsonValue cont : dbConts){
-				String ownStack = ((JsonObject)cont).getJsonObject("labels").getString("stack");
-				if (ownStack.equals(((JsonObject)stack).getString("id"))){
-					arrBuild.add(((JsonObject)cont).getJsonObject("labels").getString("name"));
+
+			for (JsonValue cont : dbConts) {
+				String ownStack = ((JsonObject) cont).getJsonObject("labels")
+						.getString("stack");
+				if (ownStack.equals(((JsonObject) stack).getString("id"))) {
+					arrBuild.add(((JsonObject) cont).getJsonObject("labels")
+							.getString("name"));
 				}
 			}
 			objBuild.add("controllers", arrBuild.build());
+			LOG.info("Stack updated: "
+					+ db.updateStack(((JsonObject) stack).getString("project"),
+							objBuild.build().toString()));
 		}
 	}
 

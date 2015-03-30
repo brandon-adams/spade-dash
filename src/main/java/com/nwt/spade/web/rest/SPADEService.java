@@ -101,5 +101,11 @@ public class SPADEService {
 		return new ResponseEntity<String>(apiController.listAllStacks("all"),
 				HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/api/stack_templates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> listAllStackTemps() {
+		return new ResponseEntity<String>(apiController.listAllStackTemps("all"),
+				HttpStatus.OK);
+	}
 
 }

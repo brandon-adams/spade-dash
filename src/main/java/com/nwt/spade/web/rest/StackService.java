@@ -45,15 +45,15 @@ public class StackService {
 	}
 	
 	@RequestMapping(value = "/{project}/stacks/{name}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<String> deleteTemplate(@PathVariable String project,
+	public @ResponseBody ResponseEntity<String> deleteStack(@PathVariable String project,
 			@PathVariable String name) {
 		return new ResponseEntity<String>(apiController.deleteStack(project, name), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/stacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<String> listAllTemplates(
+	public @ResponseBody ResponseEntity<String> listAllStacks(
 			@PathVariable String project) {
-		return new ResponseEntity<String>(apiController.listAllTemplates(project),
+		return new ResponseEntity<String>(apiController.listAllStacks(project),
 				HttpStatus.OK);
 	}
 
