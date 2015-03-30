@@ -84,7 +84,7 @@ public class KubernetesController {
 		
 	}
 
-	public JsonArray createEnv(String stack, String name, String project, String imageName,
+	public JsonArray createController(String stack, String name, String project, String imageName,
 			String os, String app, int replicas)
 			throws KubernetesOperationException {
 		String payload = null;
@@ -154,7 +154,7 @@ public class KubernetesController {
 		return db.addController(project, jsonString);
 	}
 
-	public JsonObject updateEnv(String project, String id)
+	public JsonObject updateController(String project, String id)
 			throws KubernetesOperationException {
 		JsonArray env = db.getController(project, id);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
@@ -178,7 +178,7 @@ public class KubernetesController {
 		return objBuild.build();
 	}
 
-	public JsonObject updateAllEnvs(String project)
+	public JsonObject updateAllControllers(String project)
 			throws KubernetesOperationException {// COME BACK TO THIS ONE
 		// AGAIN
 
@@ -265,27 +265,27 @@ public class KubernetesController {
 		return objBuild.build();
 	}
 
-	public JsonArray getTemplate(String project, String imageName) {
+	public JsonArray getContTemplate(String project, String imageName) {
 
 		return db.getContTemplate(project, imageName);
 	}
 
-	public JsonArray deleteTemplate(String project, String imageName) {
+	public JsonArray deleteContTemplate(String project, String imageName) {
 
 		return db.deleteContTemplate(project, imageName);
 	}
 
-	public JsonArray getAllTemplates(String project) {
+	public JsonArray getAllContTemplates(String project) {
 
 		return db.getAllContTemplates(project);
 	}
 
-	public JsonArray getEnv(String project, String id) {
+	public JsonArray getController(String project, String id) {
 
 		return db.getController(project, id);
 	}
 
-	public JsonArray deleteEnv(String project, String id)
+	public JsonArray deleteController(String project, String id)
 			throws KubernetesOperationException {
 		JsonObject env = db.getController(project, id).getJsonObject(0);
 		String selfLink = env.getString("selfLink");
@@ -308,7 +308,7 @@ public class KubernetesController {
 		return db.deleteController(project, id);
 	}
 
-	public JsonArray getAllEnvs(String project) {
+	public JsonArray getAllControllers(String project) {
 
 		return db.getAllControllers(project);
 	}

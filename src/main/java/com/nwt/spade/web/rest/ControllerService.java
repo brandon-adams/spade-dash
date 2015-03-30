@@ -31,31 +31,31 @@ public class ControllerService {
 		apiController = api;
 	}
 
-	@RequestMapping(value = "/{project}/env", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/controllers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> addEnv(
 			@PathVariable String project, @RequestBody String payload) {
-		return new ResponseEntity<String>(apiController.addEnv(project, payload),
+		return new ResponseEntity<String>(apiController.addController(project, payload),
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{project}/env/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/controllers/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> getEnv(
 			@PathVariable String project, @PathVariable String id) {
-		return new ResponseEntity<String>(apiController.getEnv(project, id),
+		return new ResponseEntity<String>(apiController.getController(project, id),
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{project}/env/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/controllers/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> deleteEnv(
 			@PathVariable String project, @PathVariable String id) {
-		return new ResponseEntity<String>(apiController.deleteEnv(project, id),
+		return new ResponseEntity<String>(apiController.deleteController(project, id),
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{project}/env", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/controllers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllEnvs(
 			@PathVariable String project) {
-		return new ResponseEntity<String>(apiController.listAllEnvs(project),
+		return new ResponseEntity<String>(apiController.listAllControllers(project),
 				HttpStatus.OK);
 	}
 
