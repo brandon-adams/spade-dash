@@ -60,9 +60,9 @@ public class SPADEService {
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/api/env", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/api/controllers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> listAllEnvs() {
-		return new ResponseEntity<String>(apiController.listAllEnvs("all"),
+		return new ResponseEntity<String>(apiController.listAllControllers("all"),
 				HttpStatus.OK);
 	}
 	

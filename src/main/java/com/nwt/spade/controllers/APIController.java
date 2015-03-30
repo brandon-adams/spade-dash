@@ -81,7 +81,7 @@ public class APIController {
 		return objBuild.build().toString();
 	}
 
-	public String addEnv(String project, String payload) {
+	public String addController(String project, String payload) {
 		JsonObject jsonInput = Json.createReader(new StringReader(payload))
 				.readObject();
 		String os = jsonInput.getString("os").toLowerCase();
@@ -106,7 +106,8 @@ public class APIController {
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonArray jsonReturn = arrBuild.build();
 		try {
-			jsonReturn = kubeController.createEnv(stack, name, project, imageName, os, app, replicas);
+			jsonReturn = kubeController.createController(stack, name, project, imageName, os, app, replicas);
+			arrBuild.add(jsonReturn);
 		} catch (KubernetesOperationException e) {
 			// Insert error message into Json Object
 			e.printStackTrace();
@@ -115,12 +116,12 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "CreateEnv");
-		objBuild.add("items", jsonReturn);
+		objBuild.add("items", arrBuild.build());
 		LOG.info("Pod creation request sent. Check dashboard for status.");
-		return objBuild.toString();
+		return objBuild.build().toString();
 	}
 
-	public String deleteEnv(String project, String id) {
+	public String deleteController(String project, String id) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
@@ -128,7 +129,7 @@ public class APIController {
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonArray jsonReturn = arrBuild.build();
 		try {
-			jsonReturn = kubeController.deleteEnv(project, id);
+			jsonReturn = kubeController.deleteController(project, id);
 			objBuild.add("items", jsonReturn);
 		} catch (KubernetesOperationException e) {
 			// Insert error message into Json Object
@@ -137,21 +138,21 @@ public class APIController {
 		return objBuild.build().toString();
 	}
 
-	public String listAllEnvs(String project) {
+	public String listAllControllers(String project) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetEnvs");
-		objBuild.add("items", kubeController.getAllEnvs(project));
+		objBuild.add("items", kubeController.getAllControllers(project));
 		return objBuild.build().toString();
 	}
 
-	public String getEnv(String project, String id) {
+	public String getController(String project, String id) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetEnv");
-		objBuild.add("items", kubeController.getEnv(project, id.toLowerCase()));
+		objBuild.add("items", kubeController.getController(project, id.toLowerCase()));
 		return objBuild.build().toString();
 	}
 
@@ -260,7 +261,7 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetTemplate");
-		objBuild.add("items", kubeController.getTemplate(project, imageName));
+		objBuild.add("items", kubeController.getContTemplate(project, imageName));
 		return objBuild.build().toString();
 	}
 
@@ -269,7 +270,7 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetTemplates");
-		objBuild.add("items", kubeController.getAllTemplates(project));
+		objBuild.add("items", kubeController.getAllContTemplates(project));
 		return objBuild.build().toString();
 	}
 	
@@ -279,7 +280,7 @@ public class APIController {
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "DeleteTemplate");
-		objBuild.add("items", kubeController.deleteTemplate(project, imageName));
+		objBuild.add("items", kubeController.deleteContTemplate(project, imageName));
 		return objBuild.build().toString();
 	}
 	
