@@ -401,7 +401,7 @@ public class MongoDBController {
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
 		query.put("id", id);
 		//query.put("desiredState.podTemplate.labels.project", project);
-		DBCollection coll = db.getCollection("environments");
+		DBCollection coll = db.getCollection("controllers");
 		DBCursor cursor = coll.find(query, removeId);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
