@@ -838,7 +838,7 @@ public class KubernetesController {
 		@Override
 		public void run() {
 			try {
-				kubeCont.updateAllEnvs("demo");
+				kubeCont.updateAllControllers("all");
 			} catch (KubernetesOperationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
