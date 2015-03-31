@@ -33,7 +33,7 @@ public class StackController {
 		this.kc = kc;
 		this.db = db;
 	}
-	
+
 	@PostConstruct
 	public void init() {
 		TimerTask updateTask = new UpdateStacks(this);
@@ -64,8 +64,8 @@ public class StackController {
 			String imageName = db.getImage(project, os, app).getJsonObject(0)
 					.getString("image");
 			arrBuild.add(kc
-					.createController(stackName, name, project, imageName, os, app,
-							replicas).getJsonObject(0).getString("id"));
+					.createController(stackName, name, project, imageName, os,
+							app, replicas).getJsonObject(0).getString("id"));
 		}
 
 		objBuild.add("id", stackName);
@@ -124,104 +124,76 @@ public class StackController {
 		JsonArray dbConts = db.getAllControllers("all");
 		JsonArray dbStacks = db.getAllStacks("all");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
-		if (!dbStacks.isEmpty()){
-		for (JsonValue stack : dbStacks) {
-			LOG.info("Found Stack: " + stack);
-			objBuild = Json.createObjectBuilder();
-			objBuild.add("id", ((JsonObject) stack).getString("id"));
-			objBuild.add("project", ((JsonObject) stack).getString("project"));
-			JsonArrayBuilder arrBuild = Json.createArrayBuilder();
-			for (JsonValue pod : dbPods) {
-				String ownStack = ((JsonObject) pod).getJsonObject("labels")
-						.getString("stack");
-				if (ownStack.equals(((JsonObject) stack).getString("id"))) {
-					arrBuild.add(((JsonObject) pod).getJsonObject("labels")
-							.getString("name"));
+		if (!dbStacks.isEmpty()) {
+			for (JsonValue stack : dbStacks) {
+				LOG.info("Found Stack: " + stack);
+				objBuild = Json.createObjectBuilder();
+				objBuild.add("id", ((JsonObject) stack).getString("id"));
+				objBuild.add("project",
+						((JsonObject) stack).getString("project"));
+				JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+				for (JsonValue pod : dbPods) {
+					String ownStack = ((JsonObject) pod)
+							.getJsonObject("labels").getString("stack");
+					if (ownStack.equals(((JsonObject) stack).getString("id"))) {
+						arrBuild.add(((JsonObject) pod).getJsonObject("labels")
+								.getString("name"));
+					}
 				}
-			}
-			objBuild.add("pods", arrBuild.build());
-			
-			for (JsonValue cont : dbConts) {
-				String ownStack = ((JsonObject) cont).getJsonObject("labels")
-						.getString("stack");
-				if (ownStack.equals(((JsonObject) stack).getString("id"))) {
-					arrBuild.add(((JsonObject) cont).getJsonObject("labels")
-							.getString("name"));
+				objBuild.add("pods", arrBuild.build());
+
+				for (JsonValue cont : dbConts) {
+					String ownStack = ((JsonObject) cont).getJsonObject(
+							"labels").getString("stack");
+					if (ownStack.equals(((JsonObject) stack).getString("id"))) {
+						arrBuild.add(((JsonObject) cont)
+								.getJsonObject("labels").getString("name"));
+					}
 				}
+				objBuild.add("controllers", arrBuild.build());
+				LOG.info("Stack updated: "
+						+ db.updateStack(
+								((JsonObject) stack).getString("project"),
+								objBuild.build().toString()));
 			}
-			objBuild.add("controllers", arrBuild.build());
-			LOG.info("Stack updated: "
-					+ db.updateStack(((JsonObject) stack).getString("project"),
-							objBuild.build().toString()));
-		}
 		} else {
 			LOG.info("No Stacks found");
-//			if (dbConts.isEmpty()){
-				LOG.info("Containers found");
-				LOG.debug("NO STACKS AND SOME CONTROLLERS");
-				for (JsonValue cont : dbConts) {
-					objBuild = Json.createObjectBuilder();
-					JsonArrayBuilder arrBuild = Json.createArrayBuilder();
-					String ownStack = ((JsonObject) cont).getJsonObject("labels")
-							.getString("stack");
-					String ownProj = ((JsonObject) cont).getJsonObject("labels")
-							.getString("stack");
-					arrBuild.add(((JsonObject) cont).getJsonObject("labels")
-							.getString("name"));
-					LOG.debug("CREATING NEW STACK");
-					objBuild.add("id", ownStack);
-					objBuild.add("project", ownProj);
-					objBuild.add("controllers", arrBuild.build());
-					String payload = objBuild.build().toString();
-					LOG.info("Stack payload: " + payload);
-					LOG.info("Stack updated: "
-							+ db.updateStack(ownProj, payload));
-				}
-//			} else {
-//				LOG.info("No containers found");
-//			}
+			LOG.info("Containers found");
+			LOG.debug("NO STACKS AND SOME CONTROLLERS");
+			for (JsonValue cont : dbConts) {
+				objBuild = Json.createObjectBuilder();
+				JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+				String ownStack = ((JsonObject) cont).getJsonObject("labels")
+						.getString("stack");
+				String ownProj = ((JsonObject) cont).getJsonObject("labels")
+						.getString("stack");
+				arrBuild.add(((JsonObject) cont).getJsonObject("labels")
+						.getString("name"));
+				LOG.debug("CREATING NEW STACK");
+				objBuild.add("id", ownStack);
+				objBuild.add("project", ownProj);
+				objBuild.add("controllers", arrBuild.build());
+				String payload = objBuild.build().toString();
+				LOG.info("Stack payload: " + payload);
+				LOG.info("Stack updated: " + db.updateStack(ownProj, payload));
+			}
 		}
 		if (dbConts.isEmpty() && !dbStacks.isEmpty()) {
 			for (JsonValue stack : dbStacks) {
-				LOG.info("Empty Stack deleted: " + db.deleteStack(((JsonObject) stack).getString("project"), 
-						((JsonObject) stack).getString("id")));
+				LOG.info("Empty Stack deleted: "
+						+ db.deleteStack(
+								((JsonObject) stack).getString("project"),
+								((JsonObject) stack).getString("id")));
 			}
 		}
-//		if (dbStacks.isEmpty() && !dbConts.isEmpty()) {
-//			LOG.debug("NO STACKS AND SOME CONTROLLERS");
-//			for (JsonValue cont : dbConts) {
-////				String ownStack = ((JsonObject) cont).getJsonObject("labels")
-////						.getString("stack");
-////				
-////				arrBuild.add(((JsonObject) cont).getJsonObject("labels")
-////						.getString("name"));
-//				LOG.debug("CREATING NEW STACK");
-//				
-//			}
-////			objBuild.add("controllers", arrBuild.build());
-////			LOG.info("Stack updated: "
-////					+ db.updateStack(((JsonObject) stack).getString("project"),
-////							objBuild.build().toString()));
-//		}
-		
-//		} else if (!dbConts.isEmpty() && dbStacks.isEmpty())
-//		for (JsonValue cont : dbConts) {
-//			String ownStack = ((JsonObject) cont).getJsonObject("labels")
-//					.getString("stack");
-//			String ownProj = ((JsonObject) cont).getJsonObject("labels")
-//					.getString("project");
-//			String ownId = ((JsonObject) cont).getString("id");
-//			objBuild.add("id", ownStack);
-//			objBuild.add("project", ownProj);
-//			objBuild.add("id", arr);
-//		}
 	}
-	
-	public static void main(String[] args){
-		StackController test = new StackController(null, new MongoDBController(true));
-		
-		test.updateAllStacks();
-	}
+
+//	public static void main(String[] args) {
+//		StackController test = new StackController(null, new MongoDBController(
+//				true));
+//
+//		test.updateAllStacks();
+//	}
 
 	public static class UpdateStacks extends TimerTask {
 
