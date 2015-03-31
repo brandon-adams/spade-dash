@@ -290,8 +290,11 @@ public class KubernetesController {
 		JsonObject env = db.getController(project, id).getJsonObject(0);
 		String selfLink = env.getString("selfLink");
 		String selector = env.getString("id");
+		System.out.println("ID: " + selector);
 		JsonArray pods = db.getAllPods(project);
 		for (JsonValue jval : pods) {
+			System.out.println(jval);
+			System.out.println(((JsonObject) jval).getJsonObject("labels").getString("controller"));
 			if (((JsonObject) jval).getJsonObject("labels").getString("controller")
 					.equalsIgnoreCase(selector)) {
 				LOG.debug("Deleting pod: "
