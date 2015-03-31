@@ -40,8 +40,8 @@ public class StackController {
 		JsonObject jsonInput = Json.createReader(new StringReader(template))
 				.readObject();
 
-		String stackName = jsonInput.getString("id");
-		String stackProj = jsonInput.getString("project");
+		String stackName = jsonInput.getString("id").toLowerCase();
+		String stackProj = jsonInput.getString("project").toLowerCase();
 		JsonArray controllers = jsonInput.getJsonArray("controllers");
 
 		for (JsonValue cont : controllers) {
