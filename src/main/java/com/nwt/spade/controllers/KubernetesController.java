@@ -80,9 +80,9 @@ public class KubernetesController {
 		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
 	}
 
-	public JsonArray createStack(String project, String template) {
-		
-	}
+//	public JsonArray createStack(String project, String template) {
+//		
+//	}
 
 	public JsonArray createController(String stack, String name, String project, String imageName,
 			String os, String app, int replicas)
