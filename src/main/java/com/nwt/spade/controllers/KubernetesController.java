@@ -289,11 +289,10 @@ public class KubernetesController {
 			throws KubernetesOperationException {
 		JsonObject env = db.getController(project, id).getJsonObject(0);
 		String selfLink = env.getString("selfLink");
-		String selector = env.getJsonObject("desiredState")
-				.getJsonObject("replicaSelector").getString("type");
+		String selector = env.getString("id");
 		JsonArray pods = db.getAllPods(project);
 		for (JsonValue jval : pods) {
-			if (((JsonObject) jval).getJsonObject("labels").getString("type")
+			if (((JsonObject) jval).getJsonObject("labels").getString("controller")
 					.equalsIgnoreCase(selector)) {
 				LOG.debug("Deleting pod: "
 						+ ((JsonObject) jval).getString("id"));
