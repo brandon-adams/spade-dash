@@ -244,8 +244,7 @@ public class KubernetesController {
 		if (!dbPods.isEmpty()) {
 			for (JsonValue jval : dbPods) {
 				boolean remove = false;
-				// LOG.debug("DBPOD ID: " + ((JsonObject)
-				// jval).getString("id"));
+				
 				for (JsonValue podval : podList) {
 					// LOG.debug("KBPOD ID: " + ((JsonObject)
 					// podval).getString("id"));
@@ -255,7 +254,35 @@ public class KubernetesController {
 					}
 				}
 				if (!remove) {
-					LOG.debug("Deleting leftover pod: "
+					LOG.info("Deleting leftover pod: "
+							+ db.deletePod(project,
+									((JsonObject) jval).getString("id")));
+				}
+			}
+			for (JsonValue jval : dbPods) {				
+				String dbContName = ((JsonObject) jval).getJsonObject("labels").getString("controller");
+				LOG.debug("DB POD STACK: " + dbContName);
+				JsonArray dbController = db.getController(project, dbContName);
+				LOG.debug("DB CONTROLLERS: " + dbController);
+				boolean remove = false;
+				
+//				for (JsonValue envval : envList) {
+//					LOG.debug("POSS EMPTY CONT: " + envval);
+//					if (((JsonObject) envval).getString("id").equals(dbStackName)) {
+//						remove = true;
+//					}
+//				}
+//				if (remove) {
+//					String selfLink = ((JsonObject) jval).getString("selfLink");
+//					kubeApiRequest("DELETE", selfLink, null);
+//					LOG.info("Deleting leftover pod: "
+//							+ db.deletePod(project,
+//									((JsonObject) jval).getString("id")));
+//				}
+				if (dbController.isEmpty()) {
+					String selfLink = ((JsonObject) jval).getString("selfLink");
+					kubeApiRequest("DELETE", selfLink, null);
+					LOG.info("Deleting orphaned pod: "
 							+ db.deletePod(project,
 									((JsonObject) jval).getString("id")));
 				}
@@ -291,18 +318,23 @@ public class KubernetesController {
 		JsonObject temp = db.getContTemplate(project, id).getJsonObject(0);
 		JsonObject env = db.getController(project, id).getJsonObject(0);
 		//String imageName = env.getJsonObject("desiredState").getJsonObject("podTemplate").getJsonObject("labels").getString("image");
-		
 		//System.out.println(temp);
 		LOG.debug("OLD TEMPLATE: " + temp);
 		String selfLink = env.getString("selfLink");
 		String selector = env.getString("id");
-		//System.out.println("ID: " + selector);
+		String result = kubeApiRequest("GET", selfLink, null);
+		LOG.debug("GETTING NEW RESOURCE: " + result);
+		int oldResource = env.getInt("resourceVersion");
+		LOG.debug("OLD RESOURCE: " + oldResource);
+		JsonObject fromGet = Json.createReader(new StringReader(result)).readObject();
+		int newResource = fromGet.getInt("resourceVersion");
+		LOG.debug("NEW RESOURCE: " + newResource);
 		JsonArray pods = db.getAllPods(project);
-		String newTemp = Json.createReader(new StringReader(temp.toString()))
-				.readObject().toString().replace("\"replicas\" : 1", "\"replicas\" : 0");
+		String newTemp = temp.toString().replace("\"replicas\":1", "\"replicas\":0")
+				.replace("\"resourceVersion\":"+oldResource, "\"resourceVersion\":"+newResource);
 		LOG.debug("NEW TEMPLATE: " + newTemp);
-		kubeApiRequest("PUT", selfLink, newTemp.toString());
-		kubeApiRequest("DELETE", selfLink, null);
+		LOG.debug(kubeApiRequest("PUT", selfLink, newTemp.toString()));
+		LOG.debug(kubeApiRequest("DELETE", selfLink, null));
 		for (JsonValue jval : pods) {
 			//System.out.println(jval);
 			//System.out.println(((JsonObject) jval).getJsonObject("labels").getString("controller"));

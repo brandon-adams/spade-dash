@@ -73,8 +73,8 @@ public class MongoDBController {
 		DBCollection coll = db.getCollection("controller_templates");
 		BasicDBObject query = new BasicDBObject();
 		query.put("id", doc.get("id"));
-		query.put("desiredState.podTemplate.labels.image", imageName);
-		query.put("desiredState.podTemplate.labels.project", project);
+		//query.put("desiredState.podTemplate.labels.image", imageName);
+		//query.put("desiredState.podTemplate.labels.project", project);
 		DBCursor cursor = coll.find(query);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
@@ -86,7 +86,7 @@ public class MongoDBController {
 					.readObject();
 			return arrBuild.add(json).build();
 		} else {
-			LOG.info("Inserted Template: " + coll.insert(doc).toString());
+			LOG.info("Inserted Template: " + coll.update(query, doc, true, false).toString());
 			json = Json.createReader(new StringReader(template)).readObject();
 			return arrBuild.add(json).build();
 		}

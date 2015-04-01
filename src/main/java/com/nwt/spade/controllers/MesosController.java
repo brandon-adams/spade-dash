@@ -159,6 +159,7 @@ public class MesosController {
 												.add("diskPercent", disk * 100);
 										taskBuild.add("memPercent", mem * 100);
 										for (JsonValue pod : dbPods) {
+											try {
 											String sid = ((JsonObject) pod)
 													.getJsonObject(
 															"annotations")
@@ -169,6 +170,9 @@ public class MesosController {
 											if (id.equalsIgnoreCase(sid))
 												taskBuild.add("podName",
 														podName);
+											} catch (Exception e){
+												LOG.error(e.getLocalizedMessage());
+											}
 										}
 
 										JsonObject taskJson = taskBuild.build();
