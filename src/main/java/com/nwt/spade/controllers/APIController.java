@@ -255,13 +255,13 @@ public class APIController {
 		return objBuild.build().toString();
 	}
 
-	public String getTemplate(String project, String os, String app) {
-		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
+	public String getTemplate(String project, String id) {
+		//String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "GetTemplate");
-		objBuild.add("items", kubeController.getContTemplate(project, imageName));
+		objBuild.add("items", kubeController.getContTemplate(project, id));
 		return objBuild.build().toString();
 	}
 
@@ -274,13 +274,13 @@ public class APIController {
 		return objBuild.build().toString();
 	}
 	
-	public String deleteTemplate(String project, String os, String app){
-		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
+	public String deleteTemplate(String project, String id){
+		//String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
 		objBuild.add("time", new Date().getTime());
 		objBuild.add("type", "DeleteTemplate");
-		objBuild.add("items", kubeController.deleteContTemplate(project, imageName));
+		objBuild.add("items", kubeController.deleteContTemplate(project, id));
 		return objBuild.build().toString();
 	}
 	

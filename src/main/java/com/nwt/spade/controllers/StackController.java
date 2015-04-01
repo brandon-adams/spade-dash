@@ -161,12 +161,13 @@ public class StackController {
 			LOG.info("Containers found");
 			LOG.debug("NO STACKS AND SOME CONTROLLERS");
 			for (JsonValue cont : dbConts) {
+				LOG.debug("CONTAINER" + cont);
 				objBuild = Json.createObjectBuilder();
 				JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 				String ownStack = ((JsonObject) cont).getJsonObject("labels")
 						.getString("stack");
 				String ownProj = ((JsonObject) cont).getJsonObject("labels")
-						.getString("stack");
+						.getString("project");
 				arrBuild.add(((JsonObject) cont).getJsonObject("labels")
 						.getString("name"));
 				LOG.debug("CREATING NEW STACK");
