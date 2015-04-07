@@ -87,7 +87,7 @@ public class MesosController {
 				new StringReader(slavesPayload)).readObject();
 
 		JsonArray dbPods = db.getAllPods("all");
-
+		
 		for (String slave : slaves) {
 			String tasksPayload = mesosApiRequest(slave, slavePort,
 					slaveEndpoint + "/state.json");

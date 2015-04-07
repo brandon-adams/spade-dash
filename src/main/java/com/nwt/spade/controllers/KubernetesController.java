@@ -154,6 +154,31 @@ public class KubernetesController {
 		return db.addController(project, jsonString);
 	}
 
+	public JsonArray scaleController(String project, String id, int num)
+			throws KubernetesOperationException {
+		JsonArray env = db.getController(project, id);
+		LOG.info("Updating controller: " + env.getJsonObject(0).getString("id"));
+		// JsonArray val = objBuild.build();
+		
+		String selfLink = env.getJsonObject(0).getString("selfLink");
+		String jsonString = kubeApiRequest("GET", selfLink, null);
+		JsonArray result = Json.createArrayBuilder().build();
+		try {
+			String newCount = jsonString.replaceFirst("\"replicas\"\\s*:\\s*\\d", "\"replicas\" : "+num);
+			LOG.info("New Replica count: " + num);
+			String jsonReturn = kubeApiRequest("PUT", selfLink, newCount);
+			LOG.info("Return from Kube api: " + jsonReturn);
+			result = db.updateController(project, jsonReturn);
+			
+		} catch (NullPointerException ne) {
+			ne.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
 	public JsonObject updateController(String project, String id)
 			throws KubernetesOperationException {
 		JsonArray env = db.getController(project, id);
@@ -768,7 +793,7 @@ public class KubernetesController {
 			connection.setRequestProperty("Accept", "application/json");
 			connection.setRequestProperty("Content-Type",
 					"application/json; charset=UTF-8");
-			if (method.equalsIgnoreCase("POST")) {
+			if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
 				OutputStreamWriter writer = new OutputStreamWriter(
 						connection.getOutputStream(), "UTF-8");
 				writer.write(payload);
@@ -867,8 +892,16 @@ public class KubernetesController {
 
 //	public static void main(String[] args) {
 //		KubernetesController test = new KubernetesController();
-//		Template temp = new Template();
-//		test.createPod(null);
+//		//Template temp = new Template();
+//		//test.createPod(null);
+//		int num=2;
+//		//String jsonString = test.createApacheJSON("test", "test", "test", "test", "test", "test", 2);
+//		try {
+//			test.scaleController("demo", "patrick-wildfly-wildfly", num);
+//		} catch (KubernetesOperationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 //	}
 
 	public static class UpdateStatus extends TimerTask {
