@@ -91,7 +91,7 @@ public class ProjectController {
 			JsonArrayBuilder tmp = Json.createArrayBuilder();
 			for(JsonValue env: envArr){
 				//LOG.debug("ENV: " + ((JsonObject)env).getString("id"));
-				if(!((JsonObject)proj).getJsonArray("environments").contains(((JsonObject)env).getString("id"))){
+				if(((JsonObject)env).getJsonObject("labels").getString("project").equals(((JsonObject)proj).getString("name"))){
 					tmp.add(((JsonObject)env).get("id"));
 				}
 			}
