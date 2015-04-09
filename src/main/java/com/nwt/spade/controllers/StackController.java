@@ -40,7 +40,7 @@ public class StackController {
 		Timer timer = new Timer(true);
 		LOG.info("Setting TimerTask in StackController");
 		// scheduling the task at fixed rate delay
-		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
+		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 3 * 1000);
 	}
 
 	public JsonArray createStack(String project, String template)

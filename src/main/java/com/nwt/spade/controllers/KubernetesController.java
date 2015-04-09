@@ -77,7 +77,7 @@ public class KubernetesController {
 		host="192.168.4.40";
 		LOG.info("Setting TimerTask in KubernetesController");
 		// scheduling the task at fixed rate delay
-		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
+		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 2 * 1000);
 	}
 
 //	public JsonArray createStack(String project, String template) {
