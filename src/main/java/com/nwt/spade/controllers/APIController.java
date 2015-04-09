@@ -1,6 +1,8 @@
 package com.nwt.spade.controllers;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +37,8 @@ public class APIController {
 	protected StackController stackController;
 	protected UserController userController;
 
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(APIController.class);
 
@@ -75,7 +79,7 @@ public class APIController {
 		
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "CreateEnv");
 		objBuild.add("items", jsonReturn);
 		return objBuild.build().toString();
@@ -114,17 +118,37 @@ public class APIController {
 		}
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "CreateEnv");
 		objBuild.add("items", arrBuild.build());
 		LOG.info("Pod creation request sent. Check dashboard for status.");
+		return objBuild.build().toString();
+	}
+	
+	public String scaleController(String project, String id, String payload) {
+		JsonObject jsonInput = Json.createReader(new StringReader(payload))
+				.readObject();
+		int num = jsonInput.getInt("num");
+		JsonObjectBuilder objBuild = Json.createObjectBuilder();
+		objBuild.add("api", "v0.0.4");
+		objBuild.add("time", dateFormat.format(new Date()));
+		objBuild.add("type", "ScaleEnv");
+		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+		JsonArray jsonReturn = arrBuild.build();
+		try {
+			jsonReturn = kubeController.scaleController(project, id, num);
+			objBuild.add("items", jsonReturn);
+		} catch (KubernetesOperationException e) {
+			// Insert error message into Json Object
+			e.printStackTrace();
+		}
 		return objBuild.build().toString();
 	}
 
 	public String deleteController(String project, String id) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "DeleteEnv");
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
 		JsonArray jsonReturn = arrBuild.build();
@@ -141,7 +165,7 @@ public class APIController {
 	public String listAllControllers(String project) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetEnvs");
 		objBuild.add("items", kubeController.getAllControllers(project));
 		return objBuild.build().toString();
@@ -150,7 +174,7 @@ public class APIController {
 	public String getController(String project, String id) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetEnv");
 		objBuild.add("items", kubeController.getController(project, id.toLowerCase()));
 		return objBuild.build().toString();
@@ -181,7 +205,7 @@ public class APIController {
 	public String getStack(String project, String id) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetStack");
 		objBuild.add("items", stackController.getStack(project, id));
 		return objBuild.build().toString();
@@ -190,7 +214,7 @@ public class APIController {
 	public String listAllStacks(String project) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetStacks");
 		objBuild.add("items", stackController.getAllStacks(project));
 		return objBuild.build().toString();
@@ -199,7 +223,7 @@ public class APIController {
 	public String deleteStack(String project, String id){
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "DeleteStack");
 		objBuild.add("items", stackController.deleteStack(project, id));
 		return objBuild.build().toString();
@@ -208,7 +232,7 @@ public class APIController {
 	public String addStack(String project, String payload) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "CreateStack");
 		try {
 			objBuild.add("items", stackController.createStack(project, payload));
@@ -222,7 +246,7 @@ public class APIController {
 	public String getStackTemp(String project, String id) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetStackTemplate");
 		objBuild.add("items", stackController.getStackTemp(project, id));
 		return objBuild.build().toString();
@@ -231,7 +255,7 @@ public class APIController {
 	public String listAllStackTemps(String project) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetStacks");
 		objBuild.add("items", stackController.getAllStackTemps(project));
 		return objBuild.build().toString();
@@ -249,45 +273,45 @@ public class APIController {
 	public String addStackTemp(String project, String template) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "CreateStack");
 		objBuild.add("items", stackController.createStackTemp(project, template));
 		return objBuild.build().toString();
 	}
 
-	public String getTemplate(String project, String os, String app) {
-		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
+	public String getTemplate(String project, String id) {
+		//String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetTemplate");
-		objBuild.add("items", kubeController.getContTemplate(project, imageName));
+		objBuild.add("items", kubeController.getContTemplate(project, id));
 		return objBuild.build().toString();
 	}
 
 	public String listAllTemplates(String project) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "GetTemplates");
 		objBuild.add("items", kubeController.getAllContTemplates(project));
 		return objBuild.build().toString();
 	}
 	
-	public String deleteTemplate(String project, String os, String app){
-		String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
+	public String deleteTemplate(String project, String id){
+		//String imageName = dockerController.getImage(project, os.toLowerCase(), app.toLowerCase()).getString("name");
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "DeleteTemplate");
-		objBuild.add("items", kubeController.deleteContTemplate(project, imageName));
+		objBuild.add("items", kubeController.deleteContTemplate(project, id));
 		return objBuild.build().toString();
 	}
 	
 	public String addProject(String project) {
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		objBuild.add("api", "v0.0.4");
-		objBuild.add("time", new Date().getTime());
+		objBuild.add("time", dateFormat.format(new Date()));
 		objBuild.add("type", "AddProject");
 		objBuild.add("items", projController.addProject(project));
 		return objBuild.build().toString();

@@ -31,20 +31,18 @@ public class TemplateService {
 		apiController = api;
 	}
 
-	@RequestMapping(value = "/{project}/templates/{os}/{app}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/templates/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> getTemplate(
-			@PathVariable String project, @PathVariable String os,
-			@PathVariable String app) {
-		return new ResponseEntity<String>(apiController.getTemplate(project, os, app),
+			@PathVariable String project, @PathVariable String id) {
+		return new ResponseEntity<String>(apiController.getTemplate(project, id),
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{project}/templates/{os}/{app}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{project}/templates/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> deleteTemplate(
-			@PathVariable String project, @PathVariable String os,
-			@PathVariable String app) {
+			@PathVariable String project, @PathVariable String id) {
 		return new ResponseEntity<String>(
-				apiController.deleteTemplate(project, os, app), HttpStatus.OK);
+				apiController.deleteTemplate(project, id), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{project}/templates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

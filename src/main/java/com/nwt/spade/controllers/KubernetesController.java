@@ -143,7 +143,7 @@ public class KubernetesController {
 		}
 
 		// payload = db.getTemplate(imageName).getString("0");
-		JsonArray added = db.addContTemplate(project, payload, imageName);
+		JsonArray added = db.addContTemplate(project, payload, stack+"-"+name);
 		LOG.debug("Added template: " + added.getJsonObject(0).toString());
 
 		String jsonString = kubeApiRequest("POST", endpoint
@@ -154,6 +154,31 @@ public class KubernetesController {
 		return db.addController(project, jsonString);
 	}
 
+	public JsonArray scaleController(String project, String id, int num)
+			throws KubernetesOperationException {
+		JsonArray env = db.getController(project, id);
+		LOG.info("Updating controller: " + env.getJsonObject(0).getString("id"));
+		// JsonArray val = objBuild.build();
+		
+		String selfLink = env.getJsonObject(0).getString("selfLink");
+		String jsonString = kubeApiRequest("GET", selfLink, null);
+		JsonArray result = Json.createArrayBuilder().build();
+		try {
+			String newCount = jsonString.replaceFirst("\"replicas\"\\s*:\\s*\\d", "\"replicas\" : "+num);
+			LOG.info("New Replica count: " + num);
+			String jsonReturn = kubeApiRequest("PUT", selfLink, newCount);
+			LOG.info("Return from Kube api: " + jsonReturn);
+			result = db.updateController(project, jsonReturn);
+			
+		} catch (NullPointerException ne) {
+			ne.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
 	public JsonObject updateController(String project, String id)
 			throws KubernetesOperationException {
 		JsonArray env = db.getController(project, id);
@@ -244,8 +269,7 @@ public class KubernetesController {
 		if (!dbPods.isEmpty()) {
 			for (JsonValue jval : dbPods) {
 				boolean remove = false;
-				// LOG.debug("DBPOD ID: " + ((JsonObject)
-				// jval).getString("id"));
+				
 				for (JsonValue podval : podList) {
 					// LOG.debug("KBPOD ID: " + ((JsonObject)
 					// podval).getString("id"));
@@ -255,7 +279,35 @@ public class KubernetesController {
 					}
 				}
 				if (!remove) {
-					LOG.debug("Deleting leftover pod: "
+					LOG.info("Deleting leftover pod: "
+							+ db.deletePod(project,
+									((JsonObject) jval).getString("id")));
+				}
+			}
+			for (JsonValue jval : dbPods) {				
+				String dbContName = ((JsonObject) jval).getJsonObject("labels").getString("controller");
+				LOG.debug("DB POD STACK: " + dbContName);
+				JsonArray dbController = db.getController(project, dbContName);
+				LOG.debug("DB CONTROLLERS: " + dbController);
+				boolean remove = false;
+				
+//				for (JsonValue envval : envList) {
+//					LOG.debug("POSS EMPTY CONT: " + envval);
+//					if (((JsonObject) envval).getString("id").equals(dbStackName)) {
+//						remove = true;
+//					}
+//				}
+//				if (remove) {
+//					String selfLink = ((JsonObject) jval).getString("selfLink");
+//					kubeApiRequest("DELETE", selfLink, null);
+//					LOG.info("Deleting leftover pod: "
+//							+ db.deletePod(project,
+//									((JsonObject) jval).getString("id")));
+//				}
+				if (dbController.isEmpty()) {
+					String selfLink = ((JsonObject) jval).getString("selfLink");
+					kubeApiRequest("DELETE", selfLink, null);
+					LOG.info("Deleting orphaned pod: "
 							+ db.deletePod(project,
 									((JsonObject) jval).getString("id")));
 				}
@@ -265,14 +317,14 @@ public class KubernetesController {
 		return objBuild.build();
 	}
 
-	public JsonArray getContTemplate(String project, String imageName) {
+	public JsonArray getContTemplate(String project, String id) {
 
-		return db.getContTemplate(project, imageName);
+		return db.getContTemplate(project, id);
 	}
 
-	public JsonArray deleteContTemplate(String project, String imageName) {
+	public JsonArray deleteContTemplate(String project, String id) {
 
-		return db.deleteContTemplate(project, imageName);
+		return db.deleteContTemplate(project, id);
 	}
 
 	public JsonArray getAllContTemplates(String project) {
@@ -287,13 +339,31 @@ public class KubernetesController {
 
 	public JsonArray deleteController(String project, String id)
 			throws KubernetesOperationException {
+		LOG.debug("DELETING ID: " + id);
+		JsonObject temp = db.getContTemplate(project, id).getJsonObject(0);
 		JsonObject env = db.getController(project, id).getJsonObject(0);
+		//String imageName = env.getJsonObject("desiredState").getJsonObject("podTemplate").getJsonObject("labels").getString("image");
+		//System.out.println(temp);
+		LOG.debug("OLD TEMPLATE: " + temp);
 		String selfLink = env.getString("selfLink");
-		String selector = env.getJsonObject("desiredState")
-				.getJsonObject("replicaSelector").getString("type");
+		String selector = env.getString("id");
+		String result = kubeApiRequest("GET", selfLink, null);
+		LOG.debug("GETTING NEW RESOURCE: " + result);
+		int oldResource = env.getInt("resourceVersion");
+		LOG.debug("OLD RESOURCE: " + oldResource);
+		JsonObject fromGet = Json.createReader(new StringReader(result)).readObject();
+		int newResource = fromGet.getInt("resourceVersion");
+		LOG.debug("NEW RESOURCE: " + newResource);
 		JsonArray pods = db.getAllPods(project);
+		String newTemp = temp.toString().replace("\"replicas\":1", "\"replicas\":0")
+				.replace("\"resourceVersion\":"+oldResource, "\"resourceVersion\":"+newResource);
+		LOG.debug("NEW TEMPLATE: " + newTemp);
+		LOG.debug(kubeApiRequest("PUT", selfLink, newTemp.toString()));
+		LOG.debug(kubeApiRequest("DELETE", selfLink, null));
 		for (JsonValue jval : pods) {
-			if (((JsonObject) jval).getJsonObject("labels").getString("type")
+			//System.out.println(jval);
+			//System.out.println(((JsonObject) jval).getJsonObject("labels").getString("controller"));
+			if (((JsonObject) jval).getJsonObject("labels").getString("controller")
 					.equalsIgnoreCase(selector)) {
 				LOG.debug("Deleting pod: "
 						+ ((JsonObject) jval).getString("id"));
@@ -302,7 +372,7 @@ public class KubernetesController {
 				db.deletePod(project, ((JsonObject) jval).getString("id"));
 			}
 		}
-		String result = kubeApiRequest("DELETE", selfLink, null);
+		
 		// Need to check that the element is actually deleted in the response,
 		// otherwise throw Exception
 		return db.deleteController(project, id);
@@ -713,7 +783,7 @@ public class KubernetesController {
 		try {
 			URL url = new URL("http://" + host + ":" + port + link);
 
-			LOG.debug("HOST: " + host);
+			//LOG.debug("HOST: " + host);
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 
@@ -723,7 +793,7 @@ public class KubernetesController {
 			connection.setRequestProperty("Accept", "application/json");
 			connection.setRequestProperty("Content-Type",
 					"application/json; charset=UTF-8");
-			if (method.equalsIgnoreCase("POST")) {
+			if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
 				OutputStreamWriter writer = new OutputStreamWriter(
 						connection.getOutputStream(), "UTF-8");
 				writer.write(payload);
@@ -822,8 +892,16 @@ public class KubernetesController {
 
 //	public static void main(String[] args) {
 //		KubernetesController test = new KubernetesController();
-//		Template temp = new Template();
-//		test.createPod(null);
+//		//Template temp = new Template();
+//		//test.createPod(null);
+//		int num=2;
+//		//String jsonString = test.createApacheJSON("test", "test", "test", "test", "test", "test", 2);
+//		try {
+//			test.scaleController("demo", "patrick-wildfly-wildfly", num);
+//		} catch (KubernetesOperationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 //	}
 
 	public static class UpdateStatus extends TimerTask {

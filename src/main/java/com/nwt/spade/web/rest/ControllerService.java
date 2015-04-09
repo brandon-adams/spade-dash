@@ -37,6 +37,13 @@ public class ControllerService {
 		return new ResponseEntity<String>(apiController.addController(project, payload),
 				HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/{project}/controllers/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> scaleEnv(
+			@PathVariable String project, @PathVariable String id, @RequestBody String payload) {
+		return new ResponseEntity<String>(apiController.scaleController(project, id, payload),
+				HttpStatus.OK);
+	}
 
 	@RequestMapping(value = "/{project}/controllers/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> getEnv(

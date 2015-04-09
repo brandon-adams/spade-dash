@@ -69,11 +69,12 @@ public class MongoDBController {
 
 	public JsonArray addContTemplate(String project, String template, String imageName) {
 		BasicDBObject doc = (BasicDBObject) JSON.parse(template);
+		doc.put("_id", doc.get("id"));
 		DBCollection coll = db.getCollection("controller_templates");
 		BasicDBObject query = new BasicDBObject();
 		query.put("id", doc.get("id"));
-		query.put("desiredState.podTemplate.labels.image", imageName);
-		query.put("desiredState.podTemplate.labels.project", project);
+		//query.put("desiredState.podTemplate.labels.image", imageName);
+		//query.put("desiredState.podTemplate.labels.project", project);
 		DBCursor cursor = coll.find(query);
 		JsonObjectBuilder objBuild = Json.createObjectBuilder();
 		JsonArrayBuilder arrBuild = Json.createArrayBuilder();
@@ -85,16 +86,17 @@ public class MongoDBController {
 					.readObject();
 			return arrBuild.add(json).build();
 		} else {
-			LOG.info("Inserted Template: " + coll.insert(doc).toString());
+			LOG.info("Inserted Template: " + coll.update(query, doc, true, false).toString());
 			json = Json.createReader(new StringReader(template)).readObject();
 			return arrBuild.add(json).build();
 		}
 	}
 
-	public JsonArray getContTemplate(String project, String imageName) {
+	public JsonArray getContTemplate(String project, String id) {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
-		query.put("desiredState.podTemplate.labels.image", imageName);
+		query.put("id", id);
+		//query.put("desiredState.podTemplate.labels.image", imageName);
 		query.put("desiredState.podTemplate.labels.project", project);
 		DBCollection coll = db.getCollection("controller_templates");
 		DBCursor cursor = coll.find(query, removeId);
@@ -112,10 +114,10 @@ public class MongoDBController {
 		return arrBuild.build();
 	}
 
-	public JsonArray deleteContTemplate(String project, String imageName) {
+	public JsonArray deleteContTemplate(String project, String id) {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
-		query.put("desiredState.podTemplate.labels.image", imageName);
+		query.put("id", id);
 		query.put("desiredState.podTemplate.labels.project", project);
 		DBCollection coll = db.getCollection("controller_templates");
 		DBCursor cursor = coll.find(query, removeId);
@@ -400,6 +402,7 @@ public class MongoDBController {
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject removeId = new BasicDBObject("_id", 0);
 		query.put("id", id);
+		LOG.debug("GETTING ID: " + id);
 		//query.put("desiredState.podTemplate.labels.project", project);
 		DBCollection coll = db.getCollection("controllers");
 		DBCursor cursor = coll.find(query, removeId);
@@ -911,5 +914,10 @@ public class MongoDBController {
 		}
 		return arrBuild.build();
 	}
+	
+//	public static void main(String[] args){
+//		MongoDBController test = new MongoDBController(true);
+//		System.out.println(test.getController("demo", "wildfly-wildfly-apache"));
+//	}
 
 }
