@@ -40,7 +40,7 @@ public class ProjectController {
 		Timer timer = new Timer(true);
 		LOG.info("Setting TimerTask in ProjectController");
 		// scheduling the task at fixed rate delay
-		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
+		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 7 * 1000);
 	}
 	
 	public JsonArray addProject(String payload){
@@ -91,9 +91,12 @@ public class ProjectController {
 			JsonArrayBuilder tmp = Json.createArrayBuilder();
 			for(JsonValue env: envArr){
 				//LOG.debug("ENV: " + ((JsonObject)env).getString("id"));
-				if(!((JsonObject)proj).getJsonArray("environments").contains(((JsonObject)env).getString("id"))){
+				if(((JsonObject)env).getJsonObject("labels").getString("project").equals(((JsonObject)proj).getString("name"))){
 					tmp.add(((JsonObject)env).get("id"));
 				}
+//				if(!((JsonObject)proj).getJsonArray("environments").contains(((JsonObject)env).getString("id"))){
+//					
+//				}
 			}
 			objBuild.add("environments", tmp.build());
 			

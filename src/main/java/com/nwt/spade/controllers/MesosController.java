@@ -64,7 +64,7 @@ public class MesosController {
 		Timer timer = new Timer(true);
 		LOG.info("Setting TimerTask in MesosController");
 		// scheduling the task at fixed rate delay
-		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 10 * 1000);
+		timer.scheduleAtFixedRate(updateTask, 15 * 1000, 2 * 1000);
 	}
 
 	public JsonArray listAllTasks() {
